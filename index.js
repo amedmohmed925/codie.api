@@ -38,13 +38,12 @@ app.get('/', (req, res) => {
 });
 app.use('/api/auth',require('./routes/authRoute'));
 app.use('/api/user', require('./routes/userRoute'));
-// app.use('/api/lecture', require('./routes/lectureRoute'));
-// app.use('/api/book', require('./routes/bookRoute'));
-// app.use('/api/exam', require('./routes/examRouter'));
-// app.use('/api/landing', require('./routes/landingRoute'));
-// app.use('/api/evaluation', require('./routes/evaluationRoute'));
-// app.use('/api/course', require('./routes/courseRoute'));
-// app.use('/api/admin', require('./routes/adminRoute'));
+app.use('/api/collection', require('./routes/collectionRoute'));
+app.use('/api/category', require('./routes/categoryRoute'));
+app.use('/api/product', require('./routes/productRoute'));
+app.use('/api/business', require('./routes/businessRoute'));
+app.use('/api/subscriptions', require('./routes/subscriptionRoute'));
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
