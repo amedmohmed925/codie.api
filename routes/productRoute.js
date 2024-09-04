@@ -11,7 +11,7 @@ const {
 
 /**
  * @swagger
- * /api/products:
+ * /api/product/products:
  *   get:
  *     tags: [Product]
  *     summary: Get all products
@@ -23,7 +23,7 @@ const {
  *       500:
  *         description: Server error
  */
-router.get('/', isAuth, getProducts);
+router.get('/products', isAuth, getProducts);
 
 /**
  * @swagger
