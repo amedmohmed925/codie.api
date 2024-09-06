@@ -30,7 +30,7 @@ exports.getCategoryById = async (req, res) => {
 // Create a new category
 exports.createCategory = async (req, res) => {
     const { title, categoryNumber, note } = req.body;
-    const userId = req.user._id; // Assuming the authenticated user's ID is stored in req.user
+    const userId = req.userId; // Assuming the authenticated user's ID is stored in req.user
 
     try {
         const newCategory = new Category({

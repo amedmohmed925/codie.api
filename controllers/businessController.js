@@ -30,7 +30,7 @@ exports.getBusinessById = async (req, res) => {
 // Create a new business
 exports.createBusiness = async (req, res) => {
     const { title, description, URL } = req.body;
-    const userId = req.user._id;
+    const userId = req.userId;
 
     try {
         const newBusiness = new Business({

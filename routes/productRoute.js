@@ -23,7 +23,7 @@ const {
  *       500:
  *         description: Server error
  */
-router.get('/products', isAuth, getProducts);
+router.get('/products', getProducts);
 
 /**
  * @swagger
@@ -46,7 +46,7 @@ router.get('/products', isAuth, getProducts);
  *       500:
  *         description: Server error
  */
-router.get('/:productId', isAuth, getProductById);
+router.get('/:productId', getProductById);
 
 /**
  * @swagger
