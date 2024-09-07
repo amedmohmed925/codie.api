@@ -48,6 +48,14 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default:false
     },
+    linkedInUrl:{
+        type: String,
+        required: false
+    },
+    twitterUrl:{
+        type: String,
+        required: false
+    },
     verified: {
         type: Boolean,
         default:false
