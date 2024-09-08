@@ -75,7 +75,7 @@ const login = async (req, res, next) => {
         }
         // Generate JWT token
         const tokenData = { userId: user._id };
-        const token = jwt.sign(tokenData,process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign(tokenData,process.env.JWT_SECRET, { expiresIn: '24h' });
 
         let Role = user.role || "";
 
@@ -112,6 +112,30 @@ const forgetPassword = async (req, res, next) => {
         await user.save();
 
         res.status(200).json({ message: 'Password updated successfully.' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Forget password
+const reastPassword = async (req, res, next) => {
+    const {newPassword } = req.body;
+
+    if (newPassword) {
+        return res.status(400).json({ message: 'Please provide  new password.' });
+    }
+
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10); // Hash the new password
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Password reast successfully.' });
     } catch (error) {
         next(error);
     }
@@ -154,5 +178,6 @@ module.exports = {
     register,
     login,
     forgetPassword,
-    refreshToken
+    refreshToken,
+    reastPassword
 };

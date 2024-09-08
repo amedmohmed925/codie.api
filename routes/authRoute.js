@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, forgetPassword, refreshToken } = require('../controllers/authController');
+const { register, login, forgetPassword, refreshToken, reastPassword } = require('../controllers/authController');
 const {  verifyOTP, sendOTP } = require('../controllers/otpController');
 
 /**
@@ -95,6 +95,30 @@ router.post('/register', register);
  *         description: Server error
  */
 router.put('/forget-password', forgetPassword);
+
+/**
+ * @swagger
+ * /api/auth/reast-password:
+ *   put:
+ *     summary: Reast password
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful
+ *       500:
+ *         description: Server error
+ */
+router.put('/reast-password', reastPassword);
+
 
 /**
  * @swagger

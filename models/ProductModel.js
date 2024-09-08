@@ -50,6 +50,16 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    isSave: {
+        type: Boolean,
+        default:false,
+        required: false
+    },
+    isLike: {
+        type: Boolean,
+        default:false,
+        required: false
+    },
 });
 
 module.exports = mongoose.model('Product', productSchema);

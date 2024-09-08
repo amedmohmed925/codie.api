@@ -43,6 +43,8 @@ app.use('/api/category', require('./routes/categoryRoute'));
 app.use('/api/product', require('./routes/productRoute'));
 app.use('/api/business', require('./routes/businessRoute'));
 app.use('/api/subscriptions', require('./routes/subscriptionRoute'));
+app.use('/api/saveTemplates', require('./routes/saveTemplateRoute'));
+app.use('/api/likeTemplate', require('./routes/likeTemplateRoute'));
 
 
 const PORT = process.env.PORT || 3000;
