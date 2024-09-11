@@ -23,7 +23,7 @@ const {
  *       500:
  *         description: Server error
  */
-router.get('/', isAuth, getBusinesses);
+router.get('/', getBusinesses);
 
 /**
  * @swagger
