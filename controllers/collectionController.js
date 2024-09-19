@@ -55,7 +55,7 @@ const deleteCollection = async (req, res) => {
 
 const getCollections = async (req, res) => {
   try {
-      const collections = await Collection.find()
+      const collections = await Collection.find({userId:req.params.userId})
           .populate('userId')
           .populate('productId');
       res.status(200).json(collections);

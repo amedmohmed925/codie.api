@@ -123,7 +123,7 @@ router.delete('/:collectionId', isAuth, deleteCollection);
 
 /**
  * @swagger
- * /api/collection/allcollections:
+ * /api/collection/allcollections/{userId}:
  *   get:
  *     summary: Get all collection IDs
  *     tags: [Collection]
@@ -132,6 +132,6 @@ router.delete('/:collectionId', isAuth, deleteCollection);
  *       200:
  *         description: A list of collection IDs.
  */
-router.get('/allcollections', isAuth, getCollections);
+router.get('/allcollections/:userId', isAuth, getCollections);
 
 module.exports = router;

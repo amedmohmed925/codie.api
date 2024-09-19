@@ -46,7 +46,7 @@ router.get('/', getBusinesses);
  *       500:
  *         description: Server error
  */
-router.get('/:businessId', isAuth, getBusinessById);
+router.get('/:businessId', getBusinessById);
 
 /**
  * @swagger

@@ -23,7 +23,7 @@ const {
  *       500:
  *         description: Server error
  */
-router.get('/', isAuth, getSubscriptions);
+router.get('/', getSubscriptions);
 
 /**
  * @swagger
@@ -46,7 +46,7 @@ router.get('/', isAuth, getSubscriptions);
  *       500:
  *         description: Server error
  */
-router.get('/:subscriptionId', isAuth, getSubscriptionById);
+router.get('/:subscriptionId', getSubscriptionById);
 
 /**
  * @swagger
