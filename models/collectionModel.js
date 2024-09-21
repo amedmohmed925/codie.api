@@ -5,10 +5,10 @@ const collectionSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
-    productId:{
-        type:mongoose.Schema.Types.ObjectId,
+    productIds: [{
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
-    },
+    }],
     name: {
         type: String,
         required: true

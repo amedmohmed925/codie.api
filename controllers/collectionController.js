@@ -3,43 +3,44 @@
 const Collection = require('../models/collectionModel');
 
 const getCollection = async (req, res) => {
-  try {
-      const collection = await Collection.findById(req.params.collectionId)
-          .populate('userId')
-          .populate('productId');
-      if (!collection) {
-          return res.status(404).json({ message: 'Collection not found' });
-      }
-      res.status(200).json(collection);
-  } catch (err) {
-      res.status(500).json({ message: 'Server error', error: err.message });
-  }
+    try {
+        const collection = await Collection.findById(req.params.collectionId)
+            .populate('userId')
+            .populate('productIds'); // تعديل هنا
+        if (!collection) {
+            return res.status(404).json({ message: 'Collection not found' });
+        }
+        res.status(200).json(collection);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
 };
 const addCollection = async (req, res) => {
-  const { userId, productId, name } = req.body;
-  try {
-      const newCollection = new Collection({ userId, productId, name });
-      const savedCollection = await newCollection.save();
-      res.status(201).json(savedCollection);
-  } catch (err) {
-      res.status(500).json({ message: 'Server error', error: err.message });
-  }
-};
+    const { userId, productIds, name } = req.body;
+    try {
+        const newCollection = new Collection({ userId, productIds, name });
+        const savedCollection = await newCollection.save();
+        res.status(201).json(savedCollection);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+}
+
 const updateCollection = async (req, res) => {
-  const { name } = req.body;
-  try {
-      const updatedCollection = await Collection.findByIdAndUpdate(
-          req.params.collectionId,
-          { name },
-          { new: true }
-      ).populate('userId').populate('productId');
-      if (!updatedCollection) {
-          return res.status(404).json({ message: 'Collection not found' });
-      }
-      res.status(200).json(updatedCollection);
-  } catch (err) {
-      res.status(500).json({ message: 'Server error', error: err.message });
-  }
+    const { name, productIds } = req.body;
+    try {
+        const updatedCollection = await Collection.findByIdAndUpdate(
+            req.params.collectionId,
+            { name, productIds },
+            { new: true }
+        ).populate('userId').populate('productIds');
+        if (!updatedCollection) {
+            return res.status(404).json({ message: 'Collection not found' });
+        }
+        res.status(200).json(updatedCollection);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
 };
 const deleteCollection = async (req, res) => {
   try {
