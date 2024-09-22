@@ -56,9 +56,7 @@ const deleteCollection = async (req, res) => {
 
 const getCollections = async (req, res) => {
   try {
-      const collections = await Collection.find({userId:req.params.userId})
-          .populate('userId')
-          .populate('productId');
+    const collections = await Collection.find({ userId: req.params.userId }).populate('productIds').exec()
       res.status(200).json(collections);
   } catch (err) {
       res.status(500).json({ message: 'Server error', error: err.message });
