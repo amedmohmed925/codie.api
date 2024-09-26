@@ -11,11 +11,12 @@ const {
 
 /**
  * @swagger
- * /api/categories:
+ * /api/category:
  *   get:
  *     tags: [Category]
+ *     security: []
  *     summary: Get all categories
- *     responses:
+ *     responses: 
  *       200:
  *         description: Successfully retrieved all categories
  *       404:

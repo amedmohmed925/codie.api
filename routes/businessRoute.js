@@ -30,6 +30,7 @@ router.get('/', getBusinesses);
  * /api/business/{businessId}:
  *   get:
  *     tags: [Business]
+ *     security: []
  *     summary: Get business by ID
  *     parameters:
  *       - name: businessId

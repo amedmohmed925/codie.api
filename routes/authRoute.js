@@ -9,6 +9,7 @@ const {  verifyOTP, sendOTP } = require('../controllers/otpController');
  *   post:
  *     summary: Login a user
  *     tags: [Auth]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -36,6 +37,7 @@ router.post('/login', login);
  *   post:
  *     summary: Register a new user
  *     tags: [Auth]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -74,6 +76,7 @@ router.post('/register', register);
  *   put:
  *     summary: Forget password
  *     tags: [Auth]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -102,6 +105,7 @@ router.put('/forget-password', forgetPassword);
  *   put:
  *     summary: Reast password
  *     tags: [Auth]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -126,6 +130,7 @@ router.put('/reast-password', reastPassword);
  *   post:
  *     summary: Send OTP
  *     tags: [Auth]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -150,6 +155,7 @@ router.post('/send-otp', sendOTP);
  *   post:
  *     summary: Verify OTP
  *     tags: [Auth]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -176,6 +182,7 @@ router.post('/verify-otp', verifyOTP);
  *   post:
  *     summary: Refresh token
  *     tags: [Auth]
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:

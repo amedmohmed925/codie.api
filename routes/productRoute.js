@@ -14,6 +14,7 @@ const {
  * /api/product/products:
  *   get:
  *     tags: [Product]
+ *     security: []
  *     summary: Get all products
  *     responses:
  *       200:
@@ -30,6 +31,7 @@ router.get('/products', getProducts);
  * /api/product/{productId}:
  *   get:
  *     tags: [Product]
+ *     security: []
  *     summary: Get product by ID
  *     parameters:
  *       - name: productId

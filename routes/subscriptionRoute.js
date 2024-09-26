@@ -14,6 +14,7 @@ const {
  * /api/subscriptions:
  *   get:
  *     tags: [Subscription]
+ *     security: []
  *     summary: Get all subscriptions
  *     responses:
  *       200:
@@ -30,6 +31,7 @@ router.get('/', getSubscriptions);
  * /api/subscription/{subscriptionId}:
  *   get:
  *     tags: [Subscription]
+ *     security: []
  *     summary: Get subscription by ID
  *     parameters:
  *       - name: subscriptionId
