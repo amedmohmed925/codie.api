@@ -13,6 +13,23 @@ exports.getProducts = async (req, res) => {
     }
 };
 
+// Get all products
+exports.getProductsName = async (req, res) => {
+    try {
+        const products = await Product.find();
+        if (!products) {
+            return res.status(404).json({ message: 'No products found' });
+        }
+        const filterProducts = products.map(product => ({
+            id: product._id,
+            title: product.title
+        }));
+        res.status(200).json(filterProducts);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
 // Get a product by ID
 exports.getProductById = async (req, res) => {
     const { productId } = req.params;

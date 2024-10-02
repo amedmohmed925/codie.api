@@ -24,7 +24,7 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
     data: {
-        type: mongoose.Schema.Types.Mixed, // Use Mixed for flexible data types
+        type: String,
         required: true
     }
 });

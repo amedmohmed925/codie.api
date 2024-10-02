@@ -6,7 +6,8 @@ const {
     getProductById,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getProductsName
 } = require('../controllers/productController');
 
 /**
@@ -25,6 +26,24 @@ const {
  *         description: Server error
  */
 router.get('/products', getProducts);
+
+/**
+ * @swagger
+ * /api/product/productsName:
+ *   get:
+ *     tags: [Product]
+ *     security: []
+ *     summary: Get all products {id,name}
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved all products
+ *       404:
+ *         description: Products not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/productsName', getProductsName);
+
 
 /**
  * @swagger
