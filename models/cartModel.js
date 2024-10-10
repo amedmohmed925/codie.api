@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const orderSchema = new mongoose.Schema({
+const cartSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -9,25 +9,21 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
     },
-    day: {
-        type: String,
-        required: false
-    },
     status: {
         type: String,
         required: true,
         enum: ['Paid','Inprogress','Disputed','completed'],
         default: 'Inprogress'
     },
-    hour: {
-        type: String,
-        required: false
+    toutal: {
+        type: Number,
+        required: true
     },
-    data: {
+    releaseData: {
         type: String,
-        required: false
+        default: () => new Date().toLocaleString()
     }
 });
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = mongoose.model('Crat', cartSchema);
 

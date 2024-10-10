@@ -1,5 +1,5 @@
 const express = require('express');
-const { editStatus, createOrder, editOrder, getOrders, deleteOrder } = require('../controllers/orderController');
+const { editStatus, createOrder, editOrder, getOrders, deleteOrder, goToTemplete } = require('../controllers/orderController');
 const router = express.Router();
 const isAuth = require('../middleware/isAuth');
 /**
@@ -101,6 +101,20 @@ router.put('/:orderId',isAuth,editOrder)
  */
 
 router.get('/',isAuth,getOrders)
+/**
+ * @swagger
+ * /api/order/preOrder:
+ *   post:
+ *     summary: Pre order
+ *     tags: [Order]
+ *     responses:
+ *       200:
+ *         description: Pre order successfully
+ *       404:
+ *         description: bad Request
+ */
+router.post('/preOrder',isAuth,goToTemplete)
+
 /**
  * @swagger
  * /api/order/{orderId}:
