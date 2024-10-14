@@ -8,9 +8,13 @@ const {
     deleteUser, 
     editSocialProfile, 
     editInfoUser, 
-    editNameAndLocUser 
+    editNameAndLocUser, 
+    editUserPlan,
+    getTempleteByDev,
+    getDevelopers
 } = require('../controllers/userController');
 const multer = require('multer');
+const { registerDev } = require('../controllers/authController');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
@@ -190,5 +194,110 @@ router.put('/edit-info-user', isAuth, editInfoUser);
  *         description: Server error
  */
 router.put('/edit-name-loc-User', isAuth, editNameAndLocUser);
+
+/**
+ * @swagger
+ * /api/user/plan:
+ *   put:
+ *     summary: Edit user plan
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               plan:
+ *                 type: string
+ *                 description: The new plan for the user
+ *     responses:
+ *       200:
+ *         description: User plan updated successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/plan',isAuth, editUserPlan);
+
+/**
+ * @swagger
+ * /api/user/templetes:
+ *   get:
+ *     summary: Get templates by developer ID
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               developerId:
+ *                 type: string
+ *                 description: ID of the developer
+ *     responses:
+ *       200:
+ *         description: List of templates by developer
+ *       404:
+ *         description: Templates not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/templetes',isAuth, getTempleteByDev);
+
+/**
+ * @swagger
+ * /api/user/developers:
+ *   get:
+ *     summary: Get all developers
+ *     tags: [User]
+ *     responses:
+ *       200:
+ *         description: List of all developers
+ *       404:
+ *         description: Developers not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/developers',isAuth, getDevelopers);
+
+/**
+ * @swagger
+ * /api/user/create-dev:
+ *   post:
+ *     summary: Register a new developer
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *                 description: First name of the developer
+ *                 example: John
+ *               lastName:
+ *                 type: string
+ *                 description: Last name of the developer
+ *                 example: Doe
+ *               jobTitle:
+ *                 type: string
+ *                 description: The job title of the developer
+ *                 example: Full-Stack Developer
+ *     responses:
+ *       201:
+ *         description: Developer registered successfully
+ *       400:
+ *         description: Developer already exists
+ *       500:
+ *         description: Server error
+ */
+router.post('/create-dev',isAuth, registerDev);
 
 module.exports = router;

@@ -87,7 +87,6 @@ router.get('/:productId', getProductById);
  *               - description
  *               - tags
  *               - productCreator
- *               - creatorJobTitle
  *             properties:
  *               title:
  *                 type: string
@@ -100,8 +99,6 @@ router.get('/:productId', getProductById);
  *                 items:
  *                   type: string
  *               productCreator:
- *                 type: string
- *               creatorJobTitle:
  *                 type: string
  *               privateURL:
  *                 type: string
@@ -154,8 +151,6 @@ router.post('/', isAuth, createProduct);
  *                 items:
  *                   type: string
  *               productCreator:
- *                 type: string
- *               creatorJobTitle:
  *                 type: string
  *               privateURL:
  *                 type: string

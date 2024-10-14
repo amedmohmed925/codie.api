@@ -23,11 +23,8 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     productCreator: {
-        type: String,
-        required: true
-    },
-    creatorJobTitle: {
-        type: String,
+        type:mongoose.Schema.Types.ObjectId,
+        ref: 'Developer',
         required: true
     },
     privateURL: {

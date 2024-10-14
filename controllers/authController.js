@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel'); 
+const Developer = require('../models/developerModel'); 
 const OTP = require('../models/otpModel'); 
 const { validationResult } = require('express-validator');
 
@@ -50,7 +51,6 @@ const register = async (req, res, next) => {
         res.status(500).send('Server error');
     }
 };
-
 
 // Login user
 const login = async (req, res, next) => {
@@ -174,10 +174,37 @@ const refreshToken = async (req, res, next) => {
         res.status(401).json({ msg: 'Invalid token' });
     }
 };
+
+// create developer
+const registerDev = async (req, res, next) => {
+    const { firstName,lastName, jobTitle} = req.body;
+
+    try {
+        // Check if developer already exists
+        let developer = await Developer.findOne({ firstName,lastName });
+        if (developer) {
+            return res.status(400).json({ msg: 'developer already exists' });
+        }
+
+        // Create and save the new user
+        developer = new Developer({firstName,lastName, jobTitle });
+        await developer.save();
+
+        return res.status(201).json({
+            success: true,
+            message: 'Create developer  successfully',
+        });
+
+    } catch (err) {
+        res.status(500).send('Server error');
+    }
+};
+
 module.exports = {
     register,
     login,
     forgetPassword,
     refreshToken,
-    reastPassword
+    reastPassword,
+    registerDev
 };
