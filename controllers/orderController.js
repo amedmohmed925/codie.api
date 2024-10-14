@@ -6,7 +6,7 @@ const createOrder = async (req, res, next) => {
     try {
         const userId = req.userId;
         const { productId } = req.params;
-        const { day, hour, data } = req.body;
+        const { day, hour, date } = req.body;
 
         // Optional validation for 'day', 'hour', 'data'
         if (day && !/^\d{4}-\d{2}-\d{2}$/.test(day)) {
@@ -23,7 +23,7 @@ const createOrder = async (req, res, next) => {
             productId,
             day: day || 'N/A',  // Default value if day is not provided
             hour: hour || 'N/A', // Default value if hour is not provided
-            data: data || 'No additional data provided', // Default value if data is not provided
+            date: date || 'No additional data provided', // Default value if data is not provided
         });
 
         // Save order to the database
@@ -132,15 +132,14 @@ const editStatus = async (req, res, next) => {
         next(error);
     }
 };
-
+// edit now 
 const goToTemplete = async (req, res, next) =>{
     try{
-        const count = await BookingList.countDocuments();
-        title = `order ${count + 1}`;
+        const productId = req.body.productId
 
         const newOrder = new BookingList({
             userId:req.userId,
-            title
+            productId
         });
         await newOrder.save();
 

@@ -1,7 +1,7 @@
 
 const Cart = require('../models/cartModel');  // Adjust the path as necessary
 
-exports.createOrder = async (req, res) => {
+const createOrder = async (req, res) => {
     try {
         const { userId, productId, toutal } = req.body;
         const newCart = new Cart({
@@ -16,7 +16,7 @@ exports.createOrder = async (req, res) => {
     }
 }
 
-exports.getOrders = async (req, res) => {
+const getOrders = async (req, res) => {
     try {
         const carts = await Cart.find().populate('userId productId');
         res.status(200).json(carts);
@@ -25,7 +25,7 @@ exports.getOrders = async (req, res) => {
     }
 }
 
-exports.getAllOrdersByUserId = async (req, res) => {
+const getAllOrdersByUserId = async (req, res) => {
     try {
         const carts = await Cart.find({userId:req.userId}).populate('productId');
         res.status(200).json(carts);
@@ -34,7 +34,7 @@ exports.getAllOrdersByUserId = async (req, res) => {
     }
 }
 
-exports.getOrderById =  async (req, res) => {
+const getOrderById =  async (req, res) => {
     try {
         const order = await Cart.findById(req.params.orderId).populate('userId productId');
         if (!order) return res.status(404).json({ message: 'Order not found',success: false });
@@ -44,7 +44,7 @@ exports.getOrderById =  async (req, res) => {
     }
 } 
 
-exports.updateStatusOrder = async (req, res) => {
+const updateStatusOrder = async (req, res) => {
     try {
         const order = await Cart.findById(req.params.orderId);
         if (!order) return res.status(404).json({ message: 'Order not found',success: false });
@@ -60,7 +60,7 @@ exports.updateStatusOrder = async (req, res) => {
     }
 }
 
-exports.deleteOrder = async (req, res) => {
+const deleteOrder = async (req, res) => {
     try {
         const order = await Cart.findById(req.params.orderId);
         if (!order) return res.status(404).json({ message: 'Order not found',success:false });
@@ -71,5 +71,13 @@ exports.deleteOrder = async (req, res) => {
         res.status(500).json({ message: err.message ,success:false});
     }
 }
+module.exports= {
+    createOrder,
+    getOrders,
+    getAllOrdersByUserId,
+    getOrderById,
+    updateStatusOrder,
+    deleteOrder
 
+}
 

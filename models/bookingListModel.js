@@ -5,8 +5,9 @@ const bookingListSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
-    title: {
-        type: String,
+    productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
     },
     releaseData: {
         type: String,

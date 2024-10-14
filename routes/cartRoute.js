@@ -1,3 +1,21 @@
+const express = require('express');
+const router = express.Router();
+const isAuth = require('../middleware/isAuth');
+const { createOrder, getOrders, getAllOrdersByUserId, getOrderById, updateStatusOrder, deleteOrder } = require('../controllers/cartController');
+router.post('/', isAuth, createOrder);
+
+router.get('/', isAuth, getOrders);
+
+router.get('/OrdersOfUser', isAuth, getAllOrdersByUserId);
+
+router.get('/:orderId', isAuth, getOrderById);
+
+
+router.put('/status/:orderId', isAuth, updateStatusOrder);
+
+
+router.delete('/:orderId', isAuth, deleteOrder);
+
 /**
  * @swagger
  * components:
@@ -7,17 +25,23 @@
  *       required:
  *         - userId
  *         - productId
- *         - toutal
+ *         - total
  *       properties:
  *         userId:
  *           type: string
  *           description: The ID of the user
  *         productId:
- *           type: string
- *           description: The ID of the product
- *         toutal:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Array of product IDs
+ *         total:
  *           type: number
  *           description: The total cost of the cart
+ *         status:
+ *           type: string
+ *           enum: ['Paid', 'Inprogress', 'Disputed', 'Completed']
+ *           description: The status of the order
  */
 
 /**
@@ -38,7 +62,6 @@
  *       400:
  *         description: Error creating order
  */
-router.post('/', isAuth, createOrder);
 
 /**
  * @swagger
@@ -52,7 +75,6 @@ router.post('/', isAuth, createOrder);
  *       500:
  *         description: Server error
  */
-router.get('/', isAuth, getOrders);
 
 /**
  * @swagger
@@ -66,7 +88,6 @@ router.get('/', isAuth, getOrders);
  *       500:
  *         description: Server error
  */
-router.get('/OrdersOfUser', isAuth, getAllOrdersByUserId);
 
 /**
  * @swagger
@@ -89,7 +110,6 @@ router.get('/OrdersOfUser', isAuth, getAllOrdersByUserId);
  *       500:
  *         description: Server error
  */
-router.get('/:orderId', isAuth, getOrderById);
 
 /**
  * @swagger
@@ -120,7 +140,6 @@ router.get('/:orderId', isAuth, getOrderById);
  *       400:
  *         description: Error updating order status
  */
-router.put('/status/:orderId', isAuth, updateStatusOrder);
 
 /**
  * @swagger
@@ -143,4 +162,3 @@ router.put('/status/:orderId', isAuth, updateStatusOrder);
  *       500:
  *         description: Server error
  */
-router.delete('/:orderId', isAuth, deleteOrder);

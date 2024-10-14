@@ -37,7 +37,7 @@ const isAuth = require('../middleware/isAuth');
  *               hour:
  *                 type: string
  *                 description: Hour of the order
- *               data:
+ *               date:
  *                 type: string
  *                 description: Additional data for the order
  *     responses:
@@ -74,7 +74,7 @@ router.post('/:productId',isAuth,createOrder)
  *                 type: string
  *               hour:
  *                 type: string
- *               data:
+ *               date:
  *                 type: string
  *     responses:
  *       200:
@@ -107,6 +107,15 @@ router.get('/',isAuth,getOrders)
  *   post:
  *     summary: Pre order
  *     tags: [Order]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               productId:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Pre order successfully
