@@ -12,16 +12,8 @@ const developerSchema = new mongoose.Schema({
     jobTitle: {
         type: String,
         required: true
-    },
-    email: {
-        type: String,
-        required: false,
-        unique: true
-    },
-    password: {
-        type: String,
-        required: false
     }
 });
 
-module.exports = mongoose.model('Develpoer', developerSchema);
+// Corrected model name
+module.exports = mongoose.model('Developer', developerSchema);

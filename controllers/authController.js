@@ -175,30 +175,31 @@ const refreshToken = async (req, res, next) => {
     }
 };
 
-// create developer
 const registerDev = async (req, res, next) => {
-    const { firstName,lastName, jobTitle} = req.body;
+    const { firstName, lastName, jobTitle } = req.body;
 
     try {
         // Check if developer already exists
-        let developer = await Developer.findOne({ firstName,lastName });
+        let developer = await Developer.findOne({ firstName, lastName });
         if (developer) {
-            return res.status(400).json({ msg: 'developer already exists' });
+            return res.status(400).json({ message: 'Developer already exists' });
         }
 
         // Create and save the new user
-        developer = new Developer({firstName,lastName, jobTitle });
+        developer = new Developer({ firstName, lastName, jobTitle });
         await developer.save();
 
         return res.status(201).json({
             success: true,
-            message: 'Create developer  successfully',
+            message: 'Developer created successfully',
         });
 
     } catch (err) {
-        res.status(500).send('Server error');
+        console.error(err.message);
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
+
 
 module.exports = {
     register,

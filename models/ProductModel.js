@@ -1,16 +1,11 @@
-const { type } = require('express/lib/response');
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
-    categoryId:{
-        type:mongoose.Schema.Types.ObjectId,
+    categoryId: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
     },
     title: {
-        type: String,
-        required: true
-    },
-    Category_name: {
         type: String,
         required: true
     },
@@ -18,12 +13,12 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    tags: {
-        type: Array,
-        required: true
-    },
+    tags: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Tags',
+    }],
     productCreator: {
-        type:mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Developer',
         required: true
     },
@@ -36,10 +31,10 @@ const productSchema = new mongoose.Schema({
         required: false
     },
     price: {
-        type: String,
+        type: Number,  // Updated to Number
         required: false
     },
-    uploadVidieUrl: {
+    uploadVideoUrl: {  // Corrected typo from uploadVidieUrl
         type: String,
         required: false
     },
@@ -49,13 +44,11 @@ const productSchema = new mongoose.Schema({
     },
     isSave: {
         type: Boolean,
-        default:false,
-        required: false
+        default: false
     },
     isLike: {
         type: Boolean,
-        default:false,
-        required: false
+        default: false
     },
 });
 

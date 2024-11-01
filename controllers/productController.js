@@ -1,9 +1,9 @@
 const Product = require('../models/ProductModel');
 
 // Get all products
-exports.getProducts = async (req, res) => {
+const getProducts = async (req, res) => {
     try {
-        const products = await Product.find().populate('categoryId', 'title');
+        const products = await Product.find().populate('categoryId', 'tags');
         if (!products) {
             return res.status(404).json({ message: 'No products found' });
         }
@@ -14,7 +14,7 @@ exports.getProducts = async (req, res) => {
 };
 
 // Get all products
-exports.getProductsName = async (req, res) => {
+const getProductsName = async (req, res) => {
     try {
         const products = await Product.find();
         if (!products) {
@@ -31,7 +31,7 @@ exports.getProductsName = async (req, res) => {
 };
 
 // Get a product by ID
-exports.getProductById = async (req, res) => {
+const getProductById = async (req, res) => {
     const { productId } = req.params;
     try {
         const product = await Product.findById(productId).populate('categoryId', 'title');
@@ -45,18 +45,17 @@ exports.getProductById = async (req, res) => {
 };
 
 // Create a new product
-exports.createProduct = async (req, res) => {
+const createProduct = async (req, res) => {
     const { 
         categoryId, 
         title, 
-        Category_name, 
         description, 
         tags, 
         productCreator, 
         privateURL, 
         privateTemplate, 
         price, 
-        uploadVidieUrl, 
+        uploadVideoUrl,  // Updated field name
         uploadImgUrl 
     } = req.body;
 
@@ -64,14 +63,13 @@ exports.createProduct = async (req, res) => {
         const newProduct = new Product({
             categoryId,
             title,
-            Category_name,
             description,
             tags,
             productCreator,
             privateURL,
             privateTemplate,
-            price,
-            uploadVidieUrl,
+            price,  // Ensure this is passed as a number
+            uploadVideoUrl,  // Updated field name
             uploadImgUrl
         });
 
@@ -83,19 +81,18 @@ exports.createProduct = async (req, res) => {
 };
 
 // Update a product by ID
-exports.updateProduct = async (req, res) => {
+const updateProduct = async (req, res) => {
     const { productId } = req.params;
     const {
         categoryId,
         title,
-        Category_name,
         description,
         tags,
         productCreator,
         privateURL,
         privateTemplate,
         price,
-        uploadVidieUrl,
+        uploadVideoUrl,  // Updated field name
         uploadImgUrl
     } = req.body;
 
@@ -105,14 +102,13 @@ exports.updateProduct = async (req, res) => {
             {
                 categoryId,
                 title,
-                Category_name,
                 description,
                 tags,
                 productCreator,
                 privateURL,
                 privateTemplate,
-                price,
-                uploadVidieUrl,
+                price,  // Ensure this is passed as a number
+                uploadVideoUrl,  // Updated field name
                 uploadImgUrl
             },
             { new: true, runValidators: true }
@@ -129,7 +125,7 @@ exports.updateProduct = async (req, res) => {
 };
 
 // Delete a product by ID
-exports.deleteProduct = async (req, res) => {
+const deleteProduct = async (req, res) => {
     const { productId } = req.params;
 
     try {
@@ -144,3 +140,36 @@ exports.deleteProduct = async (req, res) => {
         res.status(500).json({ message: 'Server error', error });
     }
 };
+
+const searchProduct = async (req, res) => {
+    const { searchTerm } = req.query; 
+
+    try {
+        const products = await Product.find({
+            $or: [
+                { title: { $regex: searchTerm, $options: 'i' } },
+                { productCreator: { $regex: searchTerm, $options: 'i' } }, 
+                { tags: { $in: await Tags.find({ title: { $regex: searchTerm, $options: 'i' } }).select('_id') } } 
+            ]
+        }).populate('tags').populate('productCreator');
+
+        if (products.length === 0) {
+            return res.status(404).json({ message: 'لا توجد نتائج مطابقة' });
+        }
+
+        res.status(200).json(products);
+    } catch (error) {
+        res.status(500).json({ message: 'حدث خطأ في السيرفر', error });
+    }
+};
+
+
+module.exports = {
+    searchProduct,
+    deleteProduct,
+    updateProduct,
+    createProduct,
+    getProductById,
+    getProductsName,
+    getProducts
+}

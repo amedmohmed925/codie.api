@@ -7,7 +7,8 @@ const {
     createProduct,
     updateProduct,
     deleteProduct,
-    getProductsName
+    getProductsName,
+    searchProduct
 } = require('../controllers/productController');
 
 /**
@@ -43,7 +44,6 @@ router.get('/products', getProducts);
  *         description: Server error
  */
 router.get('/productsName', getProductsName);
-
 
 /**
  * @swagger
@@ -83,14 +83,13 @@ router.get('/:productId', getProductById);
  *             type: object
  *             required:
  *               - title
- *               - Category_name
  *               - description
  *               - tags
  *               - productCreator
  *             properties:
  *               title:
  *                 type: string
- *               Category_name:
+ *               categoryId:
  *                 type: string
  *               description:
  *                 type: string
@@ -106,7 +105,7 @@ router.get('/:productId', getProductById);
  *                 type: string
  *               price:
  *                 type: string
- *               uploadVidieUrl:
+ *               uploadVideoUrl:
  *                 type: string
  *               uploadImgUrl:
  *                 type: string
@@ -142,7 +141,7 @@ router.post('/', isAuth, createProduct);
  *             properties:
  *               title:
  *                 type: string
- *               Category_name:
+ *               categoryId:
  *                 type: string
  *               description:
  *                 type: string
@@ -157,8 +156,8 @@ router.post('/', isAuth, createProduct);
  *               privateTemplate:
  *                 type: string
  *               price:
- *                 type: string
- *               uploadVidieUrl:
+ *                 type: number
+ *               uploadVideoUrl:
  *                 type: string
  *               uploadImgUrl:
  *                 type: string
@@ -197,4 +196,32 @@ router.put('/:productId', isAuth, updateProduct);
  */
 router.delete('/:productId', isAuth, deleteProduct);
 
+/**
+ * @swagger
+ * /api/product/search:
+ *   get:
+ *     summary: Search for products by title, tag, or productCreator
+ *     tags: [Product]
+ *     parameters:
+ *       - in: query
+ *         name: searchTerm
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The search term (can be part of a tag, title, or productCreator)
+ *     responses:
+ *       200:
+ *         description: List of matching products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ *       404:
+ *         description: No matching products found
+ *       500:
+ *         description: Server error
+ */
+router.get('/search', searchProduct);
 module.exports = router;

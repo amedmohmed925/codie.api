@@ -47,6 +47,8 @@ app.use('/api/saveTemplates', require('./routes/saveTemplateRoute'));
 app.use('/api/likeTemplate', require('./routes/likeTemplateRoute'));
 app.use('/api/order', require('./routes/orderRoute'));
 app.use('/api/dashboard', require('./routes/dashboardRoute'));
+app.use('/api/tag', require('./routes/tagRoute'));
+app.use('/api/cart', require('./routes/cartRoute'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
