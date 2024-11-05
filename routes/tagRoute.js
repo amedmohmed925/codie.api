@@ -12,15 +12,9 @@ const isAuth = require('../middleware/isAuth');
  *       required:
  *         - title
  *       properties:
- *         id:
- *           type: string
- *           description: The auto-generated id of the tag
  *         title:
  *           type: string
  *           description: Tag title
- *       example:
- *         id: 60f7e4df99b1f80024f1a1b2
- *         title: Technology
  */
 
 /**
@@ -40,10 +34,6 @@ const isAuth = require('../middleware/isAuth');
  *     responses:
  *       201:
  *         description: The tag was successfully created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Tag'
  *       500:
  *         description: Server error
  */
@@ -73,10 +63,6 @@ router.post('/', isAuth, createTag);
  *     responses:
  *       200:
  *         description: The tag was successfully updated
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Tag'
  *       404:
  *         description: Tag not found
  *       500:
@@ -120,12 +106,6 @@ router.delete('/:tagId', isAuth, deleteTag);
  *     responses:
  *       200:
  *         description: List of all tags
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Tag'
  *       500:
  *         description: Server error
  */
@@ -149,10 +129,6 @@ router.get('/', isAuth, getTags);
  *     responses:
  *       200:
  *         description: The tag was successfully retrieved
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Tag'
  *       404:
  *         description: Tag not found
  *       500:

@@ -1,13 +1,16 @@
+const Tags = require('../models/tagsModel');
+
 // Create a new tag
 const createTag = async (req, res) => {
     const { title } = req.body;
-
+   console.log(title);
+   
     try {
         const newTag = new Tags({ title });
         await newTag.save();
         res.status(201).json({message:"create tag successfully"});
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ message: 'Server error', error:error.message });
     }
 };
 // Update a tag by ID
