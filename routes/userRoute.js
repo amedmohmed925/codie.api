@@ -255,6 +255,7 @@ router.get('/templetes',isAuth, getTempleteByDev);
  *   get:
  *     summary: Get all developers
  *     tags: [User]
+ *     security: []
  *     responses:
  *       200:
  *         description: List of all developers
@@ -263,7 +264,7 @@ router.get('/templetes',isAuth, getTempleteByDev);
  *       500:
  *         description: Server error
  */
-router.get('/developers',isAuth, getDevelopers);
+router.get('/developers', getDevelopers);
 
 /**
  * @swagger

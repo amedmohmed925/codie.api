@@ -101,15 +101,14 @@ router.delete('/:tagId', isAuth, deleteTag);
  *   get:
  *     summary: Get all tags
  *     tags: [Tags]
- *     security:
- *       - bearerAuth: []
+ *     security: []
  *     responses:
  *       200:
  *         description: List of all tags
  *       500:
  *         description: Server error
  */
-router.get('/', isAuth, getTags);
+router.get('/', getTags);
 
 /**
  * @swagger
