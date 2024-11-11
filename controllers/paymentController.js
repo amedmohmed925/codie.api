@@ -39,6 +39,7 @@ const invoiceInit= async (req, res) => {
         res.status(500).json({ error: 'Failed to initialize invoice' ,mag:error.message});
     }
 }
+
 module.exports = {
     getMethods,
     invoiceInit
