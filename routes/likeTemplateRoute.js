@@ -39,24 +39,17 @@ router.post('/', isAuth,likeTemplateController.createLikeTemplate);
 
 /**
  * @swagger
- * /api/likeTemplate/{userId}:
+ * /api/likeTemplate:
  *   get:
  *     summary: Get all like templates for a user
  *     tags: [LikeTemplate]
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: string
- *           description: The ID of the user
  *     responses:
  *       200:
  *         description: List of like templates
  *       500:
  *         description: Server error
  */
-router.get('/:userId', isAuth,likeTemplateController.getLikeTemplates);
+router.get('/', isAuth,likeTemplateController.getLikeTemplates);
 
 /**
  * @swagger

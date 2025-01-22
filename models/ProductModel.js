@@ -19,7 +19,7 @@ const productSchema = new mongoose.Schema({
     }],
     productCreator: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Developer',
+        ref: 'User',
         required: true
     },
     privateURL: {

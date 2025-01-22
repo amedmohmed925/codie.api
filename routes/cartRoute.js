@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const isAuth = require('../middleware/isAuth');
-const { createOrder, getOrders, getAllOrdersByUserId, getOrderById, updateStatusOrder, deleteOrder } = require('../controllers/cartController');
+const { getOrders, getAllCartsByUserId, getOrderById, updateStatusOrder, deleteCart, createCart } = require('../controllers/cartController');
 /**
  * @swagger
  * components:
@@ -15,19 +15,10 @@ const { createOrder, getOrders, getAllOrdersByUserId, getOrderById, updateStatus
  *       properties:
  *         userId:
  *           type: string
- *           description: The ID of the user
  *         productId:
- *           type: array
- *           items:
- *             type: string
- *           description: Array of product IDs
- *         toutal:
- *           type: number
- *           description: The total cost of the cart
- *         status:
  *           type: string
- *           enum: ['Paid', 'Inprogress', 'Disputed', 'Completed']
- *           description: The status of the order
+ *         price:
+ *           type: string
  */
 
 /**
@@ -48,7 +39,7 @@ const { createOrder, getOrders, getAllOrdersByUserId, getOrderById, updateStatus
  *       400:
  *         description: Error creating order
  */
-router.post('/', isAuth, createOrder);
+router.post('/', isAuth, createCart);
 
 /**
  * @swagger
@@ -67,9 +58,9 @@ router.get('/', isAuth, getOrders);
 
 /**
  * @swagger
- * /api/cart/OrdersOfUser:
+ * /api/cart/carts-user:
  *   get:
- *     summary: Get all orders for a specific user
+ *     summary: Get all Carts for a specific user
  *     tags: [Cart]
  *     responses:
  *       200:
@@ -77,7 +68,7 @@ router.get('/', isAuth, getOrders);
  *       500:
  *         description: Server error
  */
-router.get('/OrdersOfUser', isAuth, getAllOrdersByUserId);
+router.get('/carts-user', isAuth, getAllCartsByUserId);
 
 /**
  * @swagger
@@ -135,7 +126,7 @@ router.put('/status/:orderId', isAuth, updateStatusOrder);
 
 /**
  * @swagger
- * /api/cart/{orderId}:
+ * /api/cart/{cartId}:
  *   delete:
  *     summary: Delete an order by ID
  *     tags: [Cart]
@@ -154,7 +145,7 @@ router.put('/status/:orderId', isAuth, updateStatusOrder);
  *       500:
  *         description: Server error
  */
-router.delete('/:orderId', isAuth, deleteOrder);
+router.delete('/:cartId', isAuth, deleteCart);
 
 
 module.exports = router;

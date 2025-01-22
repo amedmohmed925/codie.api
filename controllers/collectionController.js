@@ -25,7 +25,6 @@ const addCollection = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 }
-
 const updateCollection = async (req, res) => {
     const { name, productIds } = req.body;
     try {

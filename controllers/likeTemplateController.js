@@ -20,7 +20,7 @@ const createLikeTemplate = async (req, res) => {
 // Get all like templates for a user
 const getLikeTemplates = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.userId;
 
     // Find all LikeTemplates for a specific user
     const templates = await LikeTemplate.find({ userId });

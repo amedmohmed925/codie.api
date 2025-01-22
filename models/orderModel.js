@@ -5,28 +5,36 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
-    productId: {
+    cartId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
+        ref: 'Cart',
     },
-    day: {
+    cartItems: [
+        {
+          productId: String,
+          title: String,
+          image: String,
+          price: String,
+          quantity: Number,
+        },
+    ],
+    addressInfo: {
         type: String,
         required: false
     },
-    status: {
+    orderStatus: {
         type: String,
         required: true,
         enum: ['Paid','Inprogress','Disputed','completed'],
         default: 'Inprogress'
     },
-    hour: {
-        type: String,
-        required: false
-    },
-    date: {
-        type: String,
-        required: false
-    }
+    paymentMethod: String,
+    paymentStatus: String,
+    totalAmount: Number,
+    orderDate: Date,
+    orderUpdateDate: Date,
+    paymentId: String,
+    payerId: String,
 });
 
 module.exports = mongoose.model('Order', orderSchema);

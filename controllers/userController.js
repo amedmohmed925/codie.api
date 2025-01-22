@@ -181,10 +181,35 @@ const getDevelopers = async (req, res, next) => {
         next(error);
     }
 }
+
+// Function to change user role to seller
+const updateUserRoleToSeller = async (req, res) => {
+    try {
+        const userId  = req.userId; // استخدم المعرف الخاص بالمستخدم من الطلب
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update the role to 'Seller'
+        user.role = 'Seller';
+        await user.save();
+
+        return res.status(200).json({
+            message: 'Role updated successfully to Seller'
+        });
+    } catch (error) {
+        console.error('Error updating user role:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 module.exports = {
     getUser,
     deleteUser,
     editInfoCompany,
+    updateUserRoleToSeller,
     editSocialProfile,
     editInfoUser,
     editNameAndLocUser,

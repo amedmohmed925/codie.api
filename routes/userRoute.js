@@ -11,7 +11,8 @@ const {
     editNameAndLocUser, 
     editUserPlan,
     getTempleteByDev,
-    getDevelopers
+    getDevelopers,
+    updateUserRoleToSeller
 } = require('../controllers/userController');
 const multer = require('multer');
 const { registerDev } = require('../controllers/authController');
@@ -35,6 +36,21 @@ const upload = multer({ storage });
  */
 router.get('/', isAuth, getUser);
 
+/**
+ * @swagger
+ * /api/user/role-to-seller:
+ *   patch:
+ *     summary: change user role to seller
+ *     tags: [User]
+ *     responses:
+ *       200:
+ *         description: change user role to seller
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.patch('/role-to-seller', isAuth,updateUserRoleToSeller);
 /**
  * @swagger
  * /api/user/edit-profile-image:

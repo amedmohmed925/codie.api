@@ -83,7 +83,7 @@ router.post('/:productId',isAuth,createOrder)
  *         description: Order not found
  */
 
-router.put('/:orderId',isAuth,editOrder)
+// router.put('/:orderId',isAuth,editOrder)
 
 /**
  * @swagger
@@ -100,7 +100,7 @@ router.put('/:orderId',isAuth,editOrder)
  *         description: No orders found
  */
 
-router.get('/',isAuth,getOrders)
+// router.get('/',isAuth,getOrders)
 /**
  * @swagger
  * /api/order/preOrder:
@@ -146,7 +146,7 @@ router.post('/preOrder',isAuth,goToTemplete)
  *         description: Order not found
  */
 
-router.delete('/:orderId',isAuth,deleteOrder)
+// router.delete('/:orderId',isAuth,deleteOrder)
 
 /**
  * @swagger
@@ -182,7 +182,7 @@ router.delete('/:orderId',isAuth,deleteOrder)
  *       404:
  *         description: Order not found
  */
-router.put('/:orderId/status',isAuth,editStatus)
+// router.put('/:orderId/status',isAuth,editStatus)
 
 
 module.exports = router;

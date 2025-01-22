@@ -1,20 +1,41 @@
 
 const Cart = require('../models/cartModel');  // Adjust the path as necessary
 
-const createOrder = async (req, res) => {
+const createCart = async (req, res) => {
     try {
-        const { userId, productId, toutal } = req.body;
+        const userId = req.userId;
+        const { productId, price } = req.body;
+        console.log(productId, price);
+        
+        // تحقق إذا كان المنتج موجودًا بالفعل في السلة
+        const existingCartItem = await Cart.findOne({ userId, productId });
+
+        if (existingCartItem) {
+            return res.status(400).json({
+                message: 'Product is already in the cart',
+                success: false
+            });
+        }
+
+        // إذا لم يكن المنتج موجودًا، قم بإضافته
         const newCart = new Cart({
             userId,
             productId,
-            toutal
+            price
         });
         await newCart.save();
-        res.status(201).json({message: 'Successfully',success: true});
+
+        res.status(201).json({
+            message: 'Product added successfully',
+            success: true
+        });
     } catch (err) {
-        res.status(400).json({ message: err.message,success: false });
+        res.status(500).json({
+            message: 'Internal server error',
+            success: false
+        });
     }
-}
+};
 
 const getOrders = async (req, res) => {
     try {
@@ -25,7 +46,7 @@ const getOrders = async (req, res) => {
     }
 }
 
-const getAllOrdersByUserId = async (req, res) => {
+const getAllCartsByUserId = async (req, res) => {
     try {
         const carts = await Cart.find({userId:req.userId}).populate('productId');
         res.status(200).json(carts);
@@ -60,24 +81,24 @@ const updateStatusOrder = async (req, res) => {
     }
 }
 
-const deleteOrder = async (req, res) => {
+const deleteCart = async (req, res) => {
     try {
-        const order = await Cart.findById(req.params.orderId);
-        if (!order) return res.status(404).json({ message: 'Order not found',success:false });
+        const cart = await Cart.findById(req.params.cartId);
+        if (!cart) return res.status(404).json({ message: 'cart not found',success:false });
 
-        await order.remove();
-        res.status(200).json({ message: 'Order deleted successfully',success:true });
+        await cart.remove();
+        res.status(200).json({ message: 'cart deleted successfully',success:true });
     } catch (err) {
         res.status(500).json({ message: err.message ,success:false});
     }
 }
 module.exports= {
-    createOrder,
+    createCart,
     getOrders,
-    getAllOrdersByUserId,
+    getAllCartsByUserId,
     getOrderById,
     updateStatusOrder,
-    deleteOrder
+    deleteCart
 
 }
 

@@ -1,137 +1,235 @@
 const Order= require('../models/orderModel');
 const BookingList= require('../models/bookingListModel');
 
-
-const createOrder = async (req, res, next) => {
+const createOrder = async (req, res) => {
     try {
-        const userId = req.userId;
-        const { productId } = req.params;
-        const { day, hour, date } = req.body;
-
-        // Optional validation for 'day', 'hour', 'data'
-        if (day && !/^\d{4}-\d{2}-\d{2}$/.test(day)) {
-            return res.status(400).json({ message: 'Invalid day format. Expected format: YYYY-MM-DD',success: false  });
+      const {
+        userId,
+        cartItems,
+        addressInfo,
+        orderStatus,
+        paymentMethod,
+        paymentStatus,
+        totalAmount,
+        orderDate,
+        orderUpdateDate,
+        paymentId,
+        payerId,
+        cartId,
+      } = req.body;
+  
+      if(paymentMethod=="paypal"){
+        const create_payment_json = {
+          intent: "sale",
+          payer: {
+            payment_method: "paypal",
+          },
+          redirect_urls: {
+            return_url: "http://localhost:5173/shop/paypal-return",
+            cancel_url: "http://localhost:5173/shop/paypal-cancel",
+          },
+          transactions: [
+            {
+              item_list: {
+                items: cartItems.map((item) => ({
+                  name: item.title,
+                  sku: item.productId,
+                  price: item.price.toFixed(2),
+                  currency: "USD",
+                  quantity: item.quantity,
+                })),
+              },
+              amount: {
+                currency: "USD",
+                total: totalAmount.toFixed(2),
+              },
+              description: "description",
+            },
+          ],
+        };
+    
+        paypal.payment.create(create_payment_json, async (error, paymentInfo) => {
+          if (error) {
+            console.log(error);
+    
+            return res.status(500).json({
+              success: false,
+              message: "Error while creating paypal payment",
+            });
+          } else {
+            const newlyCreatedOrder = new Order({
+              userId,
+              cartId,
+              cartItems,
+              addressInfo,
+              orderStatus,
+              paymentMethod,
+              paymentStatus,
+              totalAmount,
+              orderDate,
+              orderUpdateDate,
+              paymentId,
+              payerId,
+            });
+    
+            await newlyCreatedOrder.save();
+    
+            const approvalURL = paymentInfo.links.find(
+              (link) => link.rel === "approval_url"
+            ).href;
+    
+            res.status(201).json({
+              success: true,
+              approvalURL,
+              orderId: newlyCreatedOrder._id,
+            });
+          }
+        });
+      }else{
+        const orderData={
+          cartItems:cartItems,
+          totalAmount:totalAmount,
+          addressInfo:addressInfo
         }
-        
-        if (hour && !/^\d{2}:\d{2}$/.test(hour)) {
-            return res.status(400).json({ message: 'Invalid hour format. Expected format: HH:mm',success: false });
-        }
-
-        // Create new order
-        const newOrder = new Order({
+        const TheToken=await processPayment(orderData);
+        if(TheToken){
+          const newlyCreatedOrder = new Order({
             userId,
-            productId,
-            day: day || 'N/A',  // Default value if day is not provided
-            hour: hour || 'N/A', // Default value if hour is not provided
-            date: date || 'No additional data provided', // Default value if data is not provided
-        });
-
-        // Save order to the database
-        await newOrder.save();
-
-        return res.status(201).json({
-            message: 'Order created successfully',
+            cartId,
+            cartItems,
+            addressInfo,
+            orderStatus,
+            paymentMethod,
+            paymentStatus,
+            totalAmount,
+            orderDate,
+            orderUpdateDate,
+            paymentId,
+            payerId,
+          });
+          await newlyCreatedOrder.save();
+          let iframURL = `https://accept.paymob.com/api/acceptance/iframes/889545?payment_token=${TheToken}`;
+          res.status(201).json({
             success: true,
-            order: newOrder, // Returning the created order
-        });
-    } catch (error) {
-        next(error); // Pass error to error handling middleware
+            approvalURL:iframURL,
+            orderId: newlyCreatedOrder._id,
+          });
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({
+        success: false,
+        message: "Some error occured!",
+      });
     }
-};
-
-
-
-const editOrder = async (req, res, next) => {
+  };
+  
+  const capturePayment = async (req, res) => {
     try {
-        const { orderId } = req.params;
-        const updates = req.body; // Dynamic updates
-        
-        // Optional validation for 'day', 'hour', 'data'
-        if (updates.day && !/^\d{4}-\d{2}-\d{2}$/.test(updates.day)) {
-            return res.status(400).json({ message: 'Invalid day format. Expected format: YYYY-MM-DD',success: false  });
-        }
-        
-        if (updates.hour && !/^\d{2}:\d{2}$/.test(updates.hour)) {
-            return res.status(400).json({ message: 'Invalid hour format. Expected format: HH:mm',success: false  });
-        }
-
-        // Find and update the order
-        const updatedOrder = await Order.findByIdAndUpdate(orderId, updates, { new: true });
-
-        if (!updatedOrder) {
-            return res.status(404).json({ message: 'Order not found', success: false });
-        }
-
-        return res.status(200).json({
-            message: 'Order updated successfully',
-            success: true,
-            order: updatedOrder, // Returning the updated order
+      const { paymentId, payerId, orderId } = req.body;
+  
+      let order = await Order.findById(orderId);
+  
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message: "Order can not be found",
         });
-    } catch (error) {
-        next(error);
-    }
-};
-
-
-
-const getOrders = async (req, res, next) => {
-    try {
-        const orders = await Order.find().populate('userId').populate('productId');
-        
-        if (!orders.length) {
-            return res.status(404).json({ message: 'No orders found',success: false });
+      }
+  
+      order.paymentStatus = "paid";
+      order.orderStatus = "confirmed";
+      order.paymentId = paymentId;
+      order.payerId = payerId;
+  
+      for (let item of order.cartItems) {
+        let product = await Product.findById(item.productId);
+  
+        if (!product) {
+          return res.status(404).json({
+            success: false,
+            message: `Not enough stock for this product ${product.title}`,
+          });
         }
-
-        return res.status(200).json({ orders });
-    } catch (error) {
-        next(error);
+  
+        product.totalStock -= item.quantity;
+  
+        await product.save();
+      }
+  
+      const getCartId = order.cartId;
+      await Cart.findByIdAndDelete(getCartId);
+  
+      await order.save();
+  
+      res.status(200).json({
+        success: true,
+        message: "Order confirmed",
+        data: order,
+      });
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({
+        success: false,
+        message: "Some error occured!",
+      });
     }
-};
-
-
-const deleteOrder = async (req, res, next) => {
+  };
+  
+  const getAllOrdersByUser = async (req, res) => {
     try {
-        const { orderId } = req.params;
-
-        const deletedOrder = await Order.findByIdAndDelete(orderId);
-
-        if (!deletedOrder) {
-            return res.status(404).json({ message: 'Order not found',success: false });
-        }
-
-        return res.status(200).json({
-            message: 'Order deleted successfully',
-            success: true
+      const { userId } = req.params;
+  
+      const orders = await Order.find({ userId });
+  
+      if (!orders.length) {
+        return res.status(404).json({
+          success: false,
+          message: "No orders found!",
         });
-    } catch (error) {
-        next(error);
+      }
+  
+      res.status(200).json({
+        success: true,
+        data: orders,
+      });
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({
+        success: false,
+        message: "Some error occured!",
+      });
     }
-};
-
-const editStatus = async (req, res, next) => {
+  };
+  
+  const getOrderDetails = async (req, res) => {
     try {
-        const { orderId } = req.params;
-        const { status } = req.body;
-
-        // Validate status against enum
-        if (!['Paid', 'Inprogress', 'Disputed', 'completed'].includes(status)) {
-            return res.status(400).json({ message: 'Invalid status' });
-        }
-
-        const updatedOrder = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
-
-        if (!updatedOrder) {
-            return res.status(404).json({ message: 'Order not found' ,success: false});
-        }
-
-        return res.status(200).json({
-            message: 'Order status updated successfully',
-            success: true
+      const { id } = req.params;
+  
+      const order = await Order.findById(id);
+  
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message: "Order not found!",
         });
-    } catch (error) {
-        next(error);
+      }
+  
+      res.status(200).json({
+        success: true,
+        data: order,
+      });
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({
+        success: false,
+        message: "Some error occured!",
+      });
     }
-};
+  };
+  
+
 // edit now 
 const goToTemplete = async (req, res, next) =>{
     try{
@@ -155,9 +253,8 @@ const goToTemplete = async (req, res, next) =>{
 
 module.exports = {
     createOrder,
-    editOrder,
-    getOrders,
-    deleteOrder,
-    editStatus,
+    capturePayment,
+    getAllOrdersByUser,
+    getOrderDetails,
     goToTemplete
 }

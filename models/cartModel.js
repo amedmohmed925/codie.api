@@ -4,25 +4,17 @@ const cartSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+        required: true
     },
-    productId: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
-    }],
-    status: {
-        type: String,
-        required: true,
-        enum: ['Paid','Inprogress','Disputed','completed'],
-        default: 'Inprogress'
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true
     },
-    toutal: {
+    price: {
         type: Number,
         required: true
     },
-    releaseData: {
-        type: String,
-        default: () => new Date().toLocaleString()
-    }
 });
 
 module.exports = mongoose.model('Cart', cartSchema);
