@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const isAuth = require('../middleware/isAuth');
-const { getOrders, getAllCartsByUserId, getOrderById, updateStatusOrder, deleteCart, createCart } = require('../controllers/cartController');
+const { getAllCartsByUserId, deleteCart, createCart } = require('../controllers/cartController');
 /**
  * @swagger
  * components:
@@ -43,21 +43,6 @@ router.post('/', isAuth, createCart);
 
 /**
  * @swagger
- * /api/cart/:
- *   get:
- *     summary: Get all orders
- *     tags: [Cart]
- *     responses:
- *       200:
- *         description: List of all orders
- *       500:
- *         description: Server error
- */
-
-router.get('/', isAuth, getOrders);
-
-/**
- * @swagger
  * /api/cart/carts-user:
  *   get:
  *     summary: Get all Carts for a specific user
@@ -70,59 +55,7 @@ router.get('/', isAuth, getOrders);
  */
 router.get('/carts-user', isAuth, getAllCartsByUserId);
 
-/**
- * @swagger
- * /api/cart/{orderId}:
- *   get:
- *     summary: Get an order by ID
- *     tags: [Cart]
- *     parameters:
- *       - in: path
- *         name: orderId
- *         schema:
- *           type: string
- *         required: true
- *         description: The order ID
- *     responses:
- *       200:
- *         description: Order data
- *       404:
- *         description: Order not found
- *       500:
- *         description: Server error
- */
-router.get('/:orderId', isAuth, getOrderById);
 
-/**
- * @swagger
- * /api/cart/status/{orderId}:
- *   put:
- *     summary: Update the status of an order
- *     tags: [Cart]
- *     parameters:
- *       - in: path
- *         name: orderId
- *         schema:
- *           type: string
- *         required: true
- *         description: The order ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
- *                 description: New status of the order
- *     responses:
- *       200:
- *         description: Status updated successfully
- *       400:
- *         description: Error updating order status
- */
-router.put('/status/:orderId', isAuth, updateStatusOrder);
 
 /**
  * @swagger

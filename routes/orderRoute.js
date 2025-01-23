@@ -11,7 +11,7 @@ const isAuth = require('../middleware/isAuth');
 
 /**
  * @swagger
- * /api/order/{productId}:
+ * /api/order:
  *   post:
  *     summary: Create a new order
  *     tags: [Order]
@@ -46,7 +46,7 @@ const isAuth = require('../middleware/isAuth');
  *       400:
  *         description: Bad request
  */
-router.post('/:productId',isAuth,createOrder)
+router.post('/',isAuth,createOrder)
 
 /**
  * @swagger

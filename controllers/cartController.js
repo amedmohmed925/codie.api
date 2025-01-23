@@ -37,15 +37,6 @@ const createCart = async (req, res) => {
     }
 };
 
-const getOrders = async (req, res) => {
-    try {
-        const carts = await Cart.find().populate('userId productId');
-        res.status(200).json(carts);
-    } catch (err) {
-        res.status(500).json({ message: err.message ,success: false});
-    }
-}
-
 const getAllCartsByUserId = async (req, res) => {
     try {
         const carts = await Cart.find({userId:req.userId}).populate('productId');
@@ -54,50 +45,21 @@ const getAllCartsByUserId = async (req, res) => {
         res.status(500).json({ message: err.message ,success: false});
     }
 }
-
-const getOrderById =  async (req, res) => {
-    try {
-        const order = await Cart.findById(req.params.orderId).populate('userId productId');
-        if (!order) return res.status(404).json({ message: 'Order not found',success: false });
-        res.status(200).json(order);
-    } catch (err) {
-        res.status(500).json({ message: err.message ,success: false  });
-    }
-} 
-
-const updateStatusOrder = async (req, res) => {
-    try {
-        const order = await Cart.findById(req.params.orderId);
-        if (!order) return res.status(404).json({ message: 'Order not found',success: false });
-
-        const {status } = req.body;
-
-        if (status) order.status = status;
-
-        await order.save();
-        res.status(200).json({message: 'Status updated Successfully',success: true});
-    } catch (err) {
-        res.status(400).json({ message: err.message, success:false });
-    }
-}
-
 const deleteCart = async (req, res) => {
     try {
-        const cart = await Cart.findById(req.params.cartId);
+        const cart = await Cart.findByIdAndDelete(req.params.cartId);
         if (!cart) return res.status(404).json({ message: 'cart not found',success:false });
 
-        await cart.remove();
         res.status(200).json({ message: 'cart deleted successfully',success:true });
     } catch (err) {
+        console.log(err);
+        
         res.status(500).json({ message: err.message ,success:false});
     }
 }
 module.exports= {
     createCart,
-    getOrders,
     getAllCartsByUserId,
-    getOrderById,
-    updateStatusOrder,
     deleteCart
 
 }

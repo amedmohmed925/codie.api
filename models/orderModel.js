@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-    },
-    cartId:{
+    cartId:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Cart',
+    }],
+    userId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
     },
     cartItems: [
         {
@@ -20,21 +20,17 @@ const orderSchema = new mongoose.Schema({
     ],
     addressInfo: {
         type: String,
+        default:"Egypt",
         required: false
     },
     orderStatus: {
         type: String,
-        required: true,
         enum: ['Paid','Inprogress','Disputed','completed'],
         default: 'Inprogress'
     },
     paymentMethod: String,
-    paymentStatus: String,
     totalAmount: Number,
     orderDate: Date,
-    orderUpdateDate: Date,
-    paymentId: String,
-    payerId: String,
 });
 
 module.exports = mongoose.model('Order', orderSchema);
