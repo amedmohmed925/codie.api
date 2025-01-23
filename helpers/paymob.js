@@ -55,7 +55,8 @@ async function processPayment(orderData) {
                     "state": "Utah"
                 },
                 "currency": "EGP",
-                "integration_id": integrationID
+                "integration_id": integrationID,
+                 "redirection_url": "http://localhost:5173/"
             })
         });
 
