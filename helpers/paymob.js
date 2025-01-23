@@ -56,7 +56,7 @@ async function processPayment(orderData) {
                 },
                 "currency": "EGP",
                 "integration_id": integrationID,
-                 "redirection_url": "http://localhost:5173/"
+                 "redirection_url": "https://codie-mp.vercel.app/",
             })
         });
 
