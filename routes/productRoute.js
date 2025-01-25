@@ -9,8 +9,52 @@ const {
     deleteProduct,
     getProductsName,
     searchProduct,
-    updateIsVerified
+    updateIsVerified,
+    uploadMiddleware,
+    filterProducts,
 } = require('../controllers/productController');
+
+/**
+ * @swagger
+ * /api/product/filter:
+ *   get:
+ *     summary: Advanced product filtering
+ *     tags: [Product]
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter by category ID
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *         description: Minimum price filter
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *         description: Maximum price filter
+ *       - in: query
+ *         name: tags
+ *         schema:
+ *           type: string
+ *         description: Comma-separated tag IDs
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: ['newest', 'oldest', 'price-asc', 'price-desc']
+ *         description: Sorting option
+ *     responses:
+ *       200:
+ *         description: Filtered and sorted products
+ *       500:
+ *         description: Server error
+ */
+
+router.get('/filter', filterProducts);  // New route for advanced filtering
 
 /**
  * @swagger
@@ -118,7 +162,11 @@ router.get('/:productId', getProductById);
  *       500:
  *         description: Server error
  */
-router.post('/', isAuth, createProduct);
+router.post('/', 
+    isAuth,
+    uploadMiddleware, // Multer middleware for file upload
+    createProduct
+);
 
 
 /**

@@ -1,5 +1,69 @@
 const Product = require('../models/ProductModel');
 const User = require('../models/userModel');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+// Multer configuration for file upload
+const upload = multer({ 
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    storage: multer.memoryStorage() 
+  });
+  
+  // Cloudinary configuration
+  cloudinary.config({ 
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+    api_key: process.env.CLOUDINARY_API_KEY, 
+    api_secret: process.env.CLOUDINARY_API_SECRET 
+  });
+  
+  // Additional method for advanced product filtering
+const filterProducts = async (req, res) => {
+    const { 
+        category, 
+        minPrice, 
+        maxPrice, 
+        tags, 
+        sortBy 
+    } = req.query;
+
+    try {
+        let query = { isVerified: true };
+
+        // Category filter
+        if (category) query.categoryId = category;
+
+        // Price range filter
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = Number(minPrice);
+            if (maxPrice) query.price.$lte = Number(maxPrice);
+        }
+
+        // Tags filter
+        if (tags) {
+            query.tags = { $in: tags.split(',') };
+        }
+
+        // Sorting options
+        const sortOptions = {
+            'newest': { createdAt: -1 },
+            'oldest': { createdAt: 1 },
+            'price-asc': { price: 1 },
+            'price-desc': { price: -1 }
+        };
+
+        const products = await Product.find(query)
+            .populate('categoryId')
+            .populate('tags')
+            .sort(sortOptions[sortBy] || { createdAt: -1 });
+
+        res.status(200).json(products);
+    } catch (error) {
+        res.status(500).json({ 
+            message: 'Filter error', 
+            error: error.message 
+        });
+    }
+};
 
 // Get all products
 const getProducts = async (req, res) => {
@@ -60,11 +124,26 @@ const createProduct = async (req, res) => {
         privateURL, 
         privateTemplate, 
         price, 
-        uploadVideoUrl,  // Updated field name
-        uploadImgUrl 
+        uploadVideoUrl
     } = req.body;
 
     try {
+        // Handle image upload to Cloudinary if exists
+        let uploadImgUrl = '';
+        if (req.file) {
+            const uploadResult = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: 'products' }, 
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
+                uploadStream.end(req.file.buffer);
+            });
+            uploadImgUrl = uploadResult.secure_url;
+        }
+
         const newProduct = new Product({
             categoryId,
             title,
@@ -73,16 +152,19 @@ const createProduct = async (req, res) => {
             productCreator,
             privateURL,
             privateTemplate,
-            price,  // Ensure this is passed as a number
-            uploadVideoUrl,  // Updated field name
+            price: Number(price),
+            uploadVideoUrl,
             uploadImgUrl,
-            isVerified:false
+            isVerified: false
         });
 
         const savedProduct = await newProduct.save();
         res.status(201).json(savedProduct);
     } catch (error) {
-        res.status(500).json({ message: 'Server', error:error.message });
+        res.status(500).json({ 
+            message: 'Server error', 
+            error: error.message 
+        });
     }
 };
 
@@ -204,9 +286,11 @@ module.exports = {
     searchProduct,
     deleteProduct,
     updateProduct,
+    uploadMiddleware: upload.single('image'),
     createProduct,
     getProductById,
     getProductsName,
     getProducts,
-    updateIsVerified
+    updateIsVerified,
+    filterProducts
 }
