@@ -7,6 +7,10 @@ const userSchema = new mongoose.Schema({
         enum: ['User','Admin','Seller'],
         default: 'User',
     },
+    jobTitle: {
+        type: String,
+        required: false
+    },
     name: {
         type: String,
         required: true

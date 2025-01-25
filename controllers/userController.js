@@ -69,10 +69,10 @@ const editSocialProfile = async (req, res, next) => {
 // Edit user information
 const editInfoUser = async (req, res, next) => {
     try {
-        const { userName, email } = req.body;
+        const { userName, email, jobTitle } = req.body;
         const user = await User.findByIdAndUpdate(
             req.userId,
-            { userName, email },
+            { userName, email, jobTitle },
             { new: true, runValidators: true }
         );
         if (!user) {

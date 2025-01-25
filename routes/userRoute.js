@@ -174,6 +174,8 @@ router.put('/edit-social-profile', isAuth, editSocialProfile);
  *                 type: string
  *               email:
  *                 type: string
+ *               jobTitle:
+ *                 type: string
  *     responses:
  *       200:
  *         description: User information updated
