@@ -50,6 +50,10 @@ const productSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isVerified: {
+        type: Boolean,
+        required: true
+    }
 });
 
 module.exports = mongoose.model('Product', productSchema);

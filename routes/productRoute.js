@@ -8,7 +8,8 @@ const {
     updateProduct,
     deleteProduct,
     getProductsName,
-    searchProduct
+    searchProduct,
+    updateIsVerified
 } = require('../controllers/productController');
 
 /**
@@ -118,6 +119,31 @@ router.get('/:productId', getProductById);
  *         description: Server error
  */
 router.post('/', isAuth, createProduct);
+
+
+/**
+ * @swagger
+ * /api/product/isVerify/{id}:
+ *   get:
+ *     tags: [Product]
+ *     security: []
+ *     summary: Get product by ID
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID of the product to retrieve
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully Verify product
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Server error
+ */
+router.post('/isVerify/:id', isAuth, updateIsVerified);
 
 /**
  * @swagger

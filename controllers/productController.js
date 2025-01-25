@@ -3,13 +3,17 @@ const Product = require('../models/ProductModel');
 // Get all products
 const getProducts = async (req, res) => {
     try {
-        const products = await Product.find().populate('categoryId', 'tags');
-        if (!products) {
+        const products = await Product.find({ isVerified: true })
+            .populate('categoryId')
+            .populate('tags');
+
+        if (products.length === 0) {
             return res.status(404).json({ message: 'No products found' });
         }
+
         res.status(200).json(products);
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -70,13 +74,43 @@ const createProduct = async (req, res) => {
             privateTemplate,
             price,  // Ensure this is passed as a number
             uploadVideoUrl,  // Updated field name
-            uploadImgUrl
+            uploadImgUrl,
+            isVerified:false
         });
 
         const savedProduct = await newProduct.save();
         res.status(201).json(savedProduct);
     } catch (error) {
         res.status(500).json({ message: 'Server', error:error.message });
+    }
+};
+
+const updateIsVerified = async (req, res) => {
+    try {
+        const { id } = req.params; // الحصول على ID المنتج من المعاملات
+        const isVerified  = true; // القيمة الجديدة لـ isVerified
+
+        if (typeof isVerified !== 'boolean') {
+            return res.status(400).json({ message: 'isVerified must be a boolean value' });
+        }
+
+        // تحديث المنتج
+        const updatedProduct = await Product.findByIdAndUpdate(
+            id,
+            { isVerified },
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        res.status(200).json({
+            message: 'isVerified updated successfully',
+            product: updatedProduct,
+        });
+    } catch (error) {
+        console.error('Error updating isVerified:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -171,5 +205,6 @@ module.exports = {
     createProduct,
     getProductById,
     getProductsName,
-    getProducts
+    getProducts,
+    updateIsVerified
 }
