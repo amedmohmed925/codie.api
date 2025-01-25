@@ -1,4 +1,5 @@
 const Product = require('../models/ProductModel');
+const User = require('../models/userModel');
 
 // Get all products
 const getProducts = async (req, res) => {
@@ -87,18 +88,20 @@ const createProduct = async (req, res) => {
 
 const updateIsVerified = async (req, res) => {
     try {
-        const { id } = req.params; // الحصول على ID المنتج من المعاملات
-        const isVerified  = true; // القيمة الجديدة لـ isVerified
+        const userId = req.userId;
+        const { id } = req.params;
+        const isVerified = true;
+
+        const user = await User.findById(userId);
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied' });
+        }
 
         if (typeof isVerified !== 'boolean') {
             return res.status(400).json({ message: 'isVerified must be a boolean value' });
         }
 
-        // تحديث المنتج
-        const updatedProduct = await Product.findByIdAndUpdate(
-            id,
-            { isVerified },
-        );
+        const updatedProduct = await Product.findByIdAndUpdate(id, { isVerified });
 
         if (!updatedProduct) {
             return res.status(404).json({ message: 'Product not found' });
@@ -109,7 +112,6 @@ const updateIsVerified = async (req, res) => {
             product: updatedProduct,
         });
     } catch (error) {
-        console.error('Error updating isVerified:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
