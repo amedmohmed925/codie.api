@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const isAuth = require('../middleware/isAuth');
 const { 
-    getUser,
-    getUserById, 
+    getUser, 
     editImgUser, 
     editInfoCompany, 
     deleteUser, 
@@ -36,41 +35,6 @@ const upload = multer({ storage });
  *         description: Server error
  */
 router.get('/', isAuth, getUser);
-
-/**
- * @swagger
- * /api/user/:id:
- *   get:
- *     summary: Get a user's details by ID
- *     tags: [User]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID of the user to fetch
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: User details
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 userImg:
- *                   type: string
- *                   description: The URL of the user's profile image.
- *                 userName:
- *                   type: string
- *                   description: The name of the user.
- *       404:
- *         description: User not found
- *       500:
- *         description: Server error
- */
-router.get('/:id', getUserById);
-
 
 /**
  * @swagger
