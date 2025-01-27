@@ -66,11 +66,39 @@ const filterProducts = async (req, res) => {
 };
 
 // Get all products
+const mongoose = require('mongoose');
+
+const getProductsByUser = async (req, res) => {
+    try {
+        
+        const userIdObject = new mongoose.Types.ObjectId(req.userId);
+
+        // البحث عن المنتجات التي أنشأها المستخدم
+        const products = await Product.find({
+            isVerified: true,
+            productCreator: userIdObject
+        })
+            .populate('categoryId')
+            .populate('tags');
+
+        if (products.length === 0) {
+            return res.status(404).json({ message: 'No products found for this user' });
+        }
+
+        res.status(200).json(products);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+
+// Get all products
 const getProducts = async (req, res) => {
     try {
         const products = await Product.find({ isVerified: true })
             .populate('categoryId')
             .populate('tags');
+            // .populate('tags');
 
         if (products.length === 0) {
             return res.status(404).json({ message: 'No products found' });
@@ -288,6 +316,7 @@ module.exports = {
     updateProduct,
     uploadMiddleware: upload.single('image'),
     createProduct,
+    getProductsByUser,
     getProductById,
     getProductsName,
     getProducts,

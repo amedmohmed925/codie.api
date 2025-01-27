@@ -1,8 +1,9 @@
 const Order= require('../models/orderModel');
+const Product= require('../models/ProductModel');
 const Cart= require('../models/cartModel');
 const BookingList= require('../models/bookingListModel');
 const { processPayment } = require('../helpers/paymob');
-
+const mongoose = require('mongoose');
 const createOrder = async (req, res) => {
     try {
       const {
@@ -101,7 +102,7 @@ const createOrder = async (req, res) => {
   
   const getAllOrdersByUser = async (req, res) => {
     try {
-      const { userId } = req.params;
+      const userId  = req.userId;
   
       const orders = await Order.find({ userId });
   
@@ -125,10 +126,47 @@ const createOrder = async (req, res) => {
     }
   };
   
+ 
+const getOrdersBySeller = async (req, res) => {
+  try {
+
+  
+
+    console.log('Seller ID (raw):', req.userId);
+
+    // تحويل sellerId إلى ObjectId
+    const sellerObjectId = new mongoose.Types.ObjectId(req.userId);
+    console.log('Seller ID (ObjectId):', sellerObjectId);
+    
+      // الخطوة 1: جلب المنتجات الخاصة بالبائع
+      const sellerProducts = await Product.find({ productCreator: sellerObjectId }).select('_id');
+
+      if (sellerProducts.length === 0) {
+          return res.status(404).json({ message: 'No products found for this seller' });
+      }
+
+      // استخراج IDs المنتجات الخاصة بالبائع
+      const productIds = sellerProducts.map(product => product._id);
+      console.log(productIds);
+      
+      // الخطوة 2: جلب الطلبات التي تحتوي على منتجات البائع
+      const orders = await Order.find({
+          'cartItems.productId': { $in: productIds }
+      });
+
+      if (orders.length === 0) {
+          return res.status(404).json({ message: 'No orders found for this seller' });
+      }
+
+      res.status(200).json(orders);
+  } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
   const getOrderDetails = async (req, res) => {
     try {
       const { id } = req.params;
-  
       const order = await Order.findById(id);
   
       if (!order) {
@@ -178,5 +216,6 @@ module.exports = {
     capturePayment,
     getAllOrdersByUser,
     getOrderDetails,
-    goToTemplete
+    goToTemplete,
+    getOrdersBySeller
 }

@@ -1,5 +1,5 @@
 const express = require('express');
-const { editStatus, createOrder, editOrder, getOrders, deleteOrder, goToTemplete } = require('../controllers/orderController');
+const {createOrder, getAllOrdersByUser ,goToTemplete ,getOrderDetails, getOrdersBySeller} = require('../controllers/orderController');
 const router = express.Router();
 const isAuth = require('../middleware/isAuth');
 /**
@@ -7,7 +7,6 @@ const isAuth = require('../middleware/isAuth');
  * tags:
  *   name: Order
  */
-
 
 /**
  * @swagger
@@ -50,43 +49,6 @@ router.post('/',isAuth,createOrder)
 
 /**
  * @swagger
- * /api/order/{orderId}:
- *   put:
- *     summary: Edit an existing order
- *     tags: [Order]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: orderId
- *         schema:
- *           type: string
- *         required: true
- *         description: The ID of the order to be edited
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               day:
- *                 type: string
- *               hour:
- *                 type: string
- *               date:
- *                 type: string
- *     responses:
- *       200:
- *         description: Order updated successfully
- *       404:
- *         description: Order not found
- */
-
-// router.put('/:orderId',isAuth,editOrder)
-
-/**
- * @swagger
  * /api/order:
  *   get:
  *     summary: Get a list of all orders
@@ -100,7 +62,9 @@ router.post('/',isAuth,createOrder)
  *         description: No orders found
  */
 
-// router.get('/',isAuth,getOrders)
+router.get('/',isAuth,getAllOrdersByUser)
+router.get('/:id',isAuth,getOrderDetails)
+router.get('/seller/products',isAuth,getOrdersBySeller)  // get orders by seller
 /**
  * @swagger
  * /api/order/preOrder:
@@ -123,66 +87,6 @@ router.post('/',isAuth,createOrder)
  *         description: bad Request
  */
 router.post('/preOrder',isAuth,goToTemplete)
-
-/**
- * @swagger
- * /api/order/{orderId}:
- *   delete:
- *     summary: Delete an order
- *     tags: [Order]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: orderId
- *         schema:
- *           type: string
- *         required: true
- *         description: The ID of the order to be deleted
- *     responses:
- *       200:
- *         description: Order deleted successfully
- *       404:
- *         description: Order not found
- */
-
-// router.delete('/:orderId',isAuth,deleteOrder)
-
-/**
- * @swagger
- * /api/order/{orderId}/status:
- *   put:
- *     summary: Update the status of an order
- *     tags: [Order]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: orderId
- *         schema:
- *           type: string
- *         required: true
- *         description: The ID of the order to update status
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
- *                 enum: [Paid, Inprogress, Disputed, completed]
- *                 description: The new status of the order
- *     responses:
- *       200:
- *         description: Status updated successfully
- *       400:
- *         description: Invalid status
- *       404:
- *         description: Order not found
- */
-// router.put('/:orderId/status',isAuth,editStatus)
 
 
 module.exports = router;

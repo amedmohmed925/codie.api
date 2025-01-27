@@ -172,15 +172,49 @@ const getTempleteByDev = async (req, res, next) => {
 // get developers
 const getDevelopers = async (req, res, next) => {
     try {
-        const developer = await Developer.find();
-        if (!developer) {
-            return res.status(404).json({ message: 'developers not found' });
+        // استعلام لجلب جميع المطورين
+        const developers = await Developer.find();
+
+        // استعلام لجلب جميع المستخدمين مع الحقول المحددة فقط
+        const users = await User.find().select("_id name jobTitle");
+
+        // التحقق من وجود بيانات المطورين
+        if (!developers || developers.length === 0) {
+            return res.status(404).json({ message: 'No developers found' });
         }
-        res.status(200).json(developer);
+
+        // التحقق من وجود بيانات المستخدمين
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: 'No users found' });
+        }
+
+        // فصل بيانات المطورين عن المستخدمين
+        const developersArray = developers.map(developer => {
+            return {
+                ...developer.toObject() // تحويل الـ Developer إلى كائن عادي
+            };
+        });
+
+        const usersArray = users.map(user => {
+            return {
+                _id: user._id,
+                name: user.name,
+                jobTitle: user.jobTitle
+            };
+        });
+
+        // إرسال البيانات كاستجابة
+        res.status(200).json({
+            developers:developersArray,
+            users:usersArray
+        });
     } catch (error) {
+        // تمرير الخطأ إلى الـ Middleware الخاص بالأخطاء
         next(error);
     }
-}
+};
+
+
 
 // Function to change user role to seller
 const updateUserRoleToSeller = async (req, res) => {

@@ -12,6 +12,7 @@ const {
     updateIsVerified,
     uploadMiddleware,
     filterProducts,
+    getProductsByUser,
 } = require('../controllers/productController');
 
 /**
@@ -72,6 +73,8 @@ router.get('/filter', filterProducts);  // New route for advanced filtering
  *         description: Server error
  */
 router.get('/products', getProducts);
+
+router.get('/saller/products', isAuth,getProductsByUser);
 
 /**
  * @swagger
