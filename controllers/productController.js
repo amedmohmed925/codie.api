@@ -291,23 +291,30 @@ const searchProduct = async (req, res) => {
     const { searchTerm } = req.query; 
 
     try {
+        const regex = new RegExp(searchTerm, 'i'); // Case-insensitive search
+
         const products = await Product.find({
             $or: [
-                { title: { $regex: searchTerm, $options: 'i' } },
-                { productCreator: { $regex: searchTerm, $options: 'i' } }, 
-                { tags: { $in: await Tags.find({ title: { $regex: searchTerm, $options: 'i' } }).select('_id') } } 
+                { title: regex },
+                { description: regex },
+                { price: !isNaN(searchTerm) ? Number(searchTerm) : undefined }, // Allow searching by price
+                { productCreator: regex }
             ]
-        }).populate('tags').populate('productCreator');
+        })
+        .populate('tags')
+        .populate('categoryId')
+        .populate('productCreator');
 
         if (products.length === 0) {
-            return res.status(404).json({ message: 'لا توجد نتائج مطابقة' });
+            return res.status(200).json([]); // Return empty array instead of 404
         }
 
         res.status(200).json(products);
     } catch (error) {
-        res.status(500).json({ message: 'حدث خطأ في السيرفر', error });
+        res.status(500).json({ message: 'Server error', error });
     }
 };
+
 
 
 module.exports = {
