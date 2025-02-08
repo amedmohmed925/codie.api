@@ -4,6 +4,7 @@ const Cart= require('../models/cartModel');
 const BookingList= require('../models/bookingListModel');
 const { processPayment } = require('../helpers/paymob');
 const mongoose = require('mongoose');
+
 const createOrder = async (req, res) => {
     try {
       const {
@@ -21,16 +22,17 @@ const createOrder = async (req, res) => {
         }
         const TheToken=await processPayment(orderData);
         if(TheToken){
+          let iframURL = `https://accept.paymob.com/api/acceptance/iframes/864195?payment_token=${TheToken}`;
           const newlyCreatedOrder = new Order({
             userId,
             cartId,
             cartItems,
             paymentMethod:"paymob",
             totalAmount,
-            orderDate
+            orderDate,
+            iframURL
           });
           await newlyCreatedOrder.save();
-          let iframURL = `https://accept.paymob.com/api/acceptance/iframes/864195?payment_token=${TheToken}`;
           await Cart.deleteMany({ _id: { $in: cartId } });
           res.status(201).json({
             success: true,
@@ -48,7 +50,7 @@ const createOrder = async (req, res) => {
     }
   };
   
-  const capturePayment = async (req, res) => {
+const capturePayment = async (req, res) => {
     try {
       const { paymentId, payerId, orderId } = req.body;
   
@@ -164,7 +166,7 @@ const getOrdersBySeller = async (req, res) => {
   }
 };
 
-  const getOrderDetails = async (req, res) => {
+const getOrderDetails = async (req, res) => {
     try {
       const { id } = req.params;
       const order = await Order.findById(id);

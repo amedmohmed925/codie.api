@@ -15,6 +15,7 @@ const getMethods= async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve payment methods' });
     }
 }
+
 const invoiceInit= async (req, res) => {
     const data = {
         payment_method_id: req.body.payment_method_id,

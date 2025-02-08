@@ -31,6 +31,10 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: String,
     totalAmount: Number,
     orderDate: Date,
+    iframURL:{
+        type: String,
+        required: false
+    }
 });
 
 module.exports = mongoose.model('Order', orderSchema);
