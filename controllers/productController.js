@@ -1,5 +1,7 @@
 const Product = require('../models/ProductModel');
 const User = require('../models/userModel');
+const Developer = require('../models/developerModel')
+const Tags = require('../models/tagsModel')
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 // Multer configuration for file upload
@@ -16,34 +18,91 @@ const upload = multer({
   });
   
   // Additional method for advanced product filtering
+// const filterProducts = async (req, res) => {
+//     const { 
+//         category, 
+//         minPrice, 
+//         maxPrice, 
+//         tags, 
+//         sortBy 
+//     } = req.query;
+
+//     try {
+//         let query = { isVerified: true };
+
+//         // Category filter
+//         if (category) query.categoryId = category;
+
+//         // Price range filter
+//         if (minPrice || maxPrice) {
+//             query.price = {};
+//             if (minPrice) query.price.$gte = Number(minPrice);
+//             if (maxPrice) query.price.$lte = Number(maxPrice);
+//         }
+
+//         // Tags filter
+//         if (tags) {
+//             query.tags = { $in: tags.split(',') };
+//         }
+
+//         // Sorting options
+//         const sortOptions = {
+//             'newest': { createdAt: -1 },
+//             'oldest': { createdAt: 1 },
+//             'price-asc': { price: 1 },
+//             'price-desc': { price: -1 }
+//         };
+
+//         const products = await Product.find(query)
+//             .populate('categoryId')
+//             .populate('tags')
+//             .sort(sortOptions[sortBy] || { createdAt: -1 });
+
+//         res.status(200).json(products);
+//     } catch (error) {
+//         res.status(500).json({ 
+//             message: 'Filter error', 
+//             error: error.message 
+//         });
+//     }
+// };
+
+
+
+// Get all products
+const mongoose = require('mongoose');
+
 const filterProducts = async (req, res) => {
-    const { 
-        category, 
-        minPrice, 
-        maxPrice, 
-        tags, 
-        sortBy 
-    } = req.query;
+    const { category, minPrice, maxPrice, tags, sortBy, searchTerm } = req.query;
 
     try {
         let query = { isVerified: true };
 
-        // Category filter
         if (category) query.categoryId = category;
-
-        // Price range filter
         if (minPrice || maxPrice) {
             query.price = {};
             if (minPrice) query.price.$gte = Number(minPrice);
             if (maxPrice) query.price.$lte = Number(maxPrice);
         }
+        if (tags) query.tags = { $in: tags.split(',') };
 
-        // Tags filter
-        if (tags) {
-            query.tags = { $in: tags.split(',') };
+        // **Search Functionality**
+        if (searchTerm) {
+            const regex = new RegExp(searchTerm, 'i');
+            const matchingTags = await Tags.find({ title: regex }).select('_id');
+            const matchingUsers = await User.find({ name: regex }).select('_id');
+            const matchingDevelopers = await Developer.find({
+                $or: [{ firstName: regex }, { lastName: regex }]
+            }).select('_id');
+
+            query.$or = [
+                { title: regex },
+                { description: regex },
+                { productCreator: { $in: [...matchingUsers.map(user => user._id), ...matchingDevelopers.map(dev => dev._id)] } },
+                { tags: { $in: matchingTags.map(tag => tag._id) } }
+            ];
         }
 
-        // Sorting options
         const sortOptions = {
             'newest': { createdAt: -1 },
             'oldest': { createdAt: 1 },
@@ -52,21 +111,33 @@ const filterProducts = async (req, res) => {
         };
 
         const products = await Product.find(query)
-            .populate('categoryId')
-            .populate('tags')
+            .populate('categoryId', 'title')
+            .populate('tags', 'title')
             .sort(sortOptions[sortBy] || { createdAt: -1 });
 
-        res.status(200).json(products);
+        // **Manually Populate productCreator**
+        const updatedProducts = await Promise.all(products.map(async (product) => {
+            let creator = null;
+
+            if (mongoose.Types.ObjectId.isValid(product.productCreator)) {
+                creator = await User.findById(product.productCreator).select('name email userName jobTitle');
+                if (!creator) {
+                    creator = await Developer.findById(product.productCreator).select('firstName lastName jobTitle');
+                }
+            }
+
+            return {
+                ...product.toObject(),
+                productCreator: creator || null
+            };
+        }));
+
+        res.status(200).json(updatedProducts);
     } catch (error) {
-        res.status(500).json({ 
-            message: 'Filter error', 
-            error: error.message 
-        });
+        console.error("❌ Filter Products Error:", error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
-// Get all products
-const mongoose = require('mongoose');
 
 const getProductsByUser = async (req, res) => {
     try {
@@ -96,19 +167,39 @@ const getProductsByUser = async (req, res) => {
 const getProducts = async (req, res) => {
     try {
         const products = await Product.find({ isVerified: true })
-            .populate('categoryId')
-            .populate('tags');
-            // .populate('tags');
+            .populate('categoryId', 'title') // Populate category
+            .populate('tags', 'title'); // Populate tags
 
-        if (products.length === 0) {
+        // **Manually Populate productCreator**
+        const updatedProducts = await Promise.all(products.map(async (product) => {
+            let creator = null;
+
+            if (mongoose.Types.ObjectId.isValid(product.productCreator)) {
+                creator = await User.findById(product.productCreator).select('name email userName jobTitle');
+                if (!creator) {
+                    creator = await Developer.findById(product.productCreator).select('firstName lastName jobTitle');
+                }
+            }
+
+            return {
+                ...product.toObject(),
+                productCreator: creator || null // Ensures productCreator is never empty
+            };
+        }));
+
+        if (updatedProducts.length === 0) {
             return res.status(404).json({ message: 'No products found' });
         }
 
-        res.status(200).json(products);
+        res.status(200).json(updatedProducts);
     } catch (error) {
+        console.error("❌ Get Products Error:", error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+
+
 
 // Get all products
 const getProductsName = async (req, res) => {
@@ -287,31 +378,73 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-const searchProduct = async (req, res) => {
-    const { searchTerm } = req.query; 
 
-    try {
-        const products = await Product.find({
-            $or: [
-                { title: { $regex: searchTerm, $options: 'i' } },
-                { productCreator: { $regex: searchTerm, $options: 'i' } }, 
-                { tags: { $in: await Tags.find({ title: { $regex: searchTerm, $options: 'i' } }).select('_id') } } 
-            ]
-        }).populate('tags').populate('productCreator');
+// const searchProduct = async (req, res) => {
+//     const { searchTerm } = req.query;
 
-        if (products.length === 0) {
-            return res.status(404).json({ message: 'لا توجد نتائج مطابقة' });
-        }
+//     try {
+//         if (!searchTerm) {
+//             return res.status(400).json({ message: "Search term is required" });
+//         }
 
-        res.status(200).json(products);
-    } catch (error) {
-        res.status(500).json({ message: 'حدث خطأ في السيرفر', error });
-    }
-};
+//         console.log("Received Search Query:", searchTerm); // Debugging
+//         const regex = new RegExp(searchTerm, 'i'); // Case-insensitive search
+
+//         // Step 1: Find matching user IDs (for productCreator field)
+//         let matchingUserIds = [];
+//         try {
+//             const matchingUsers = await User.find({ name: regex }).select('_id');
+//             matchingUserIds = matchingUsers.map(user => user._id);
+//         } catch (userError) {
+//             console.error("Error Fetching Users:", userError);
+//         }
+
+//         // Step 2: Find matching tag IDs (for tags field)
+//         let matchingTagIds = [];
+//         try {
+//             const matchingTags = await Tags.find({ title: regex }).select('_id');
+//             matchingTagIds = matchingTags.map(tag => tag._id);
+//         } catch (tagError) {
+//             console.error("Error Fetching Tags:", tagError);
+//         }
+
+//         // Step 3: Build search conditions while ensuring ObjectId fields are only queried with valid ObjectIds
+//         let queryConditions = [];
+
+//         if (searchTerm) {
+//             queryConditions.push({ title: regex });
+//             queryConditions.push({ description: regex });
+//         }
+
+//         if (matchingUserIds.length > 0) {
+//             queryConditions.push({ productCreator: { $in: matchingUserIds } });
+//         }
+
+//         if (matchingTagIds.length > 0) {
+//             queryConditions.push({ tags: { $in: matchingTagIds } });
+//         }
+
+//         console.log("Final Query Conditions:", JSON.stringify(queryConditions, null, 2));
+
+//         // Step 4: Execute Search Query Safely
+//         const products = await Product.find(queryConditions.length > 0 ? { $or: queryConditions } : {})
+//             .populate('tags', 'title')
+//             .populate('categoryId', 'title')
+//             .populate('productCreator', 'name email');
+
+//         console.log("Products Found:", products.length);
+//         res.status(200).json(products);
+//     } catch (error) {
+//         console.error("Search API Error:", error);
+//         res.status(500).json({ message: 'Server error', error: error.message });
+//     }
+// };
+
+
 
 
 module.exports = {
-    searchProduct,
+    // searchProduct,
     deleteProduct,
     updateProduct,
     uploadMiddleware: upload.single('image'),

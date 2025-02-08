@@ -8,7 +8,6 @@ const {
     updateProduct,
     deleteProduct,
     getProductsName,
-    searchProduct,
     updateIsVerified,
     uploadMiddleware,
     filterProducts,
@@ -17,7 +16,7 @@ const {
 
 /**
  * @swagger
- * /api/product/filter:
+ * /api/product/products/filter:
  *   get:
  *     summary: Advanced product filtering
  *     tags: [Product]
@@ -55,7 +54,7 @@ const {
  *         description: Server error
  */
 
-router.get('/filter', filterProducts);  // New route for advanced filtering
+router.get('/products/filter', filterProducts);  // New route for advanced filtering
 
 /**
  * @swagger
@@ -273,32 +272,32 @@ router.put('/:productId', isAuth, updateProduct);
  */
 router.delete('/:productId', isAuth, deleteProduct);
 
-/**
- * @swagger
- * /api/product/search:
- *   get:
- *     summary: Search for products by title, tag, or productCreator
- *     tags: [Product]
- *     parameters:
- *       - in: query
- *         name: searchTerm
- *         schema:
- *           type: string
- *         required: true
- *         description: The search term (can be part of a tag, title, or productCreator)
- *     responses:
- *       200:
- *         description: List of matching products
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Product'
- *       404:
- *         description: No matching products found
- *       500:
- *         description: Server error
- */
-router.get('/search', searchProduct);
+// /**
+//  * @swagger
+//  * /api/product/search:
+//  *   get:
+//  *     summary: Search for products by title, tag, or productCreator
+//  *     tags: [Product]
+//  *     parameters:
+//  *       - in: query
+//  *         name: searchTerm
+//  *         schema:
+//  *           type: string
+//  *         required: true
+//  *         description: The search term (can be part of a tag, title, or productCreator)
+//  *     responses:
+//  *       200:
+//  *         description: List of matching products
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/Product'
+//  *       404:
+//  *         description: No matching products found
+//  *       500:
+//  *         description: Server error
+//  */
+// router.get('/search', searchProduct);
 module.exports = router;
