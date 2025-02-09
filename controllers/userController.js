@@ -209,8 +209,9 @@ const getDevelopers = async (req, res, next) => {
             users: usersArray
         });
     } catch (error) {
-        // تمرير الخطأ إلى الـ Middleware الخاص بالأخطاء
-        next(error);
+        res.status(500).json({
+            message: error.message
+        });
     }
 };
 
