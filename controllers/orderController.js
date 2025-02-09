@@ -7,52 +7,73 @@ const mongoose = require('mongoose');
 const User = require('../models/userModel');
 
 const createOrder = async (req, res) => {
-    try {
-      const {
-        cartItems,
-        totalAmount,
-        orderDate,
-        cartId,
-      } = req.body;
-      const userId=req.userId
-      if (!user) {
-        return res.status(404).json({ success: false, message: "User not found!" });
-      }
+  try {
+      const { cartItems, totalAmount, orderDate, cartId } = req.body;
+      const userId = req.userId;
+
+      // ✅ First, find the user
       const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ success: false, message: "User not found!" });
+      }
 
-        const orderData={
-          cartItems:cartItems,
-          totalAmount:totalAmount
-        }
-        const TheToken=await processPayment(orderData,user);
-        if(TheToken){
-          let iframURL = `https://accept.paymob.com/api/acceptance/iframes/864195?payment_token=${TheToken}`;
-          const newlyCreatedOrder = new Order({
-            userId,
-            cartId,
-            cartItems,
-            paymentMethod:"paymob",
-            totalAmount,
-            orderDate,
-            iframURL
-          });
-          await newlyCreatedOrder.save();
-          await Cart.deleteMany({ _id: { $in: cartId } });
-          res.status(201).json({
-            success: true,
-            approvalURL:iframURL,
-            orderId: newlyCreatedOrder._id,
-          });
-        }
+      // ✅ Validate cartItems and totalAmount
+      if (!cartItems || cartItems.length === 0 || !totalAmount) {
+          return res.status(400).json({ success: false, message: "Invalid cart data!" });
+      }
 
-    } catch (e) {
-      console.log(e);
-      res.status(500).json({
-        success: false,
-        message: "Some error occured!",
+      const orderData = {
+          cartItems,
+          totalAmount,
+      };
+
+      // ✅ Debugging: Log payment processing attempt
+      console.log("Processing payment for order:", orderData);
+
+      const TheToken = await processPayment(orderData, user);
+
+      if (!TheToken) {
+          return res.status(500).json({ success: false, message: "Payment processing failed!" });
+      }
+
+      // ✅ Construct Paymob iframe URL
+      let iframURL = `https://accept.paymob.com/api/acceptance/iframes/864195?payment_token=${TheToken}`;
+
+      // ✅ Create the order
+      const newlyCreatedOrder = new Order({
+          userId,
+          cartId,
+          cartItems,
+          paymentMethod: "paymob",
+          totalAmount,
+          orderDate,
+          iframURL,
       });
-    }
-  };
+
+      await newlyCreatedOrder.save();
+
+      // ✅ Ensure cartId is valid before deleting
+      if (cartId && cartId.length > 0) {
+          await Cart.deleteMany({ _id: { $in: cartId } });
+      }
+
+      // ✅ Return the response
+      res.status(201).json({
+          success: true,
+          approvalURL: iframURL,
+          orderId: newlyCreatedOrder._id,
+      });
+
+  } catch (e) {
+      console.error("❌ Order Creation Error:", e);
+      res.status(500).json({
+          success: false,
+          message: "Some error occurred!",
+          error: e.message,
+      });
+  }
+};
+
   
 const capturePayment = async (req, res) => {
     try {
