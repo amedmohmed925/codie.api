@@ -40,30 +40,6 @@ router.get('/', isAuth, getUser);
 
 /**
  * @swagger
- * /api/user/{userId}:
- *   get:
- *     summary: Get a user by ID
- *     tags: [User]
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: string
- *         description: The ID of the user to retrieve
- *     responses:
- *       200:
- *         description: User details retrieved successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Server error
- */
-router.get('/:userId', getUserById); // ✅ New route
-
-
-/**
- * @swagger
  * /api/user/role-to-seller:
  *   patch:
  *     summary: change user role to seller
@@ -309,6 +285,32 @@ router.get('/templetes',isAuth, getTempleteByDev);
  *         description: Server error
  */
 router.get('/developers', getDevelopers);
+
+
+/**
+ * @swagger
+ * /api/user/{userId}:
+ *   get:
+ *     summary: Get a user by ID
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the user to retrieve
+ *     responses:
+ *       200:
+ *         description: User details retrieved successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/:userId', getUserById); // ✅ New route
+
+
 
 /**
  * @swagger
