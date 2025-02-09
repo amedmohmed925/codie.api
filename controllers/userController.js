@@ -99,10 +99,10 @@ const editInfoUser = async (req, res, next) => {
 // Edit name and location
 const editNameAndLocUser = async (req, res, next) => {
     try {
-        const { name, address } = req.body;
+        const { name } = req.body;
         const user = await User.findByIdAndUpdate(
             req.userId,
-            { name, address },
+            { name },
             { new: true, runValidators: true }
         );
         if (!user) {
