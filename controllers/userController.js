@@ -16,6 +16,18 @@ const getUser = async (req, res, next) => {
     }
 };
 
+const getUserById = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.userId); // ✅ Get user by userId from URL
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        next(error);
+    }
+};
+
 // Edit company info
 const editInfoCompany = async (req, res, next) => {
     try {
@@ -303,5 +315,6 @@ module.exports = {
     editImgUser,
     editUserPlan,
     getTempleteByDev,
-    getDevelopers
+    getDevelopers,
+    getUserById
 };
