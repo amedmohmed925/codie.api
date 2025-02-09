@@ -28,9 +28,6 @@ const getUserById = async (req, res, next) => {
     }
 };
 
-module.exports = { getUserById };
-
-
 // Edit company info
 const editInfoCompany = async (req, res, next) => {
     try {
