@@ -4,6 +4,7 @@ const Cart= require('../models/cartModel');
 const BookingList= require('../models/bookingListModel');
 const { processPayment } = require('../helpers/paymob');
 const mongoose = require('mongoose');
+const User = require('../models/userModel');
 
 const createOrder = async (req, res) => {
     try {
@@ -14,13 +15,16 @@ const createOrder = async (req, res) => {
         cartId,
       } = req.body;
       const userId=req.userId
+      if (!user) {
+        return res.status(404).json({ success: false, message: "User not found!" });
+      }
+      const user = await User.findById(userId);
 
         const orderData={
           cartItems:cartItems,
-          totalAmount:totalAmount,
-          addressInfo:"Egypt"
+          totalAmount:totalAmount
         }
-        const TheToken=await processPayment(orderData);
+        const TheToken=await processPayment(orderData,user);
         if(TheToken){
           let iframURL = `https://accept.paymob.com/api/acceptance/iframes/864195?payment_token=${TheToken}`;
           const newlyCreatedOrder = new Order({
