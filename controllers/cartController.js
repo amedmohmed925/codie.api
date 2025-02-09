@@ -1,5 +1,5 @@
 
-const Cart = require('../models/cartModel');  // Adjust the path as necessary
+const Cart = require('../models/cartModel');  
 
 const createCart = async (req, res) => {
     try {
@@ -45,6 +45,7 @@ const getAllCartsByUserId = async (req, res) => {
         res.status(500).json({ message: err.message ,success: false});
     }
 }
+
 const deleteCart = async (req, res) => {
     try {
         const cart = await Cart.findByIdAndDelete(req.params.cartId);
@@ -57,6 +58,7 @@ const deleteCart = async (req, res) => {
         res.status(500).json({ message: err.message ,success:false});
     }
 }
+
 module.exports= {
     createCart,
     getAllCartsByUserId,

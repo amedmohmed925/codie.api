@@ -18,11 +18,11 @@ const orderSchema = new mongoose.Schema({
           quantity: Number,
         },
     ],
-    addressInfo: {
-        type: String,
-        default:"Egypt",
-        required: false
-    },
+    // addressInfo: {
+    //     type: String,
+    //     default:"Egypt",
+    //     required: false
+    // },
     orderStatus: {
         type: String,
         enum: ['Paid','Inprogress','Disputed','completed'],
@@ -31,6 +31,10 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: String,
     totalAmount: Number,
     orderDate: Date,
+    iframURL:{
+        type: String,
+        required: false
+    }
 });
 
 module.exports = mongoose.model('Order', orderSchema);

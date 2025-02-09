@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     role: {
         type: String,
-        require:true,
-        enum: ['User','Admin','Seller'],
+        required: true,
+        enum: ['User', 'Admin', 'Seller'],
         default: 'User',
     },
     jobTitle: {
         type: String,
-        default: false
+        default: ""
     },
     name: {
         type: String,
@@ -23,9 +23,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    address: {
-        type: String,
-        required: false
+    address: { // تم تصحيحها من مصفوفة إلى كائن
+        apartment: { type: String, required: false },
+        floor: { type: String, required: false },
+        street: { type: String, required: true },
+        building: { type: String, required: false },
+        postalCode: { type: String, required: false },
+        city: { type: String, required: true },
+        country: { type: String, required: true },
+        state: { type: String, required: false }
     },
     email: {
         type: String,
@@ -36,38 +42,38 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    userImg:{
+    userImg: {
         type: String,
         required: false
     },
-    companyName:{
+    companyName: {
         type: String,
         required: false
     },
-    companyUrl:{
+    companyUrl: {
         type: String,
         required: false
     },
-    conditions:{
+    conditions: {
         type: Boolean,
-        default:false
+        default: false
     },
-    linkedInUrl:{
+    linkedInUrl: {
         type: String,
         required: false
     },
-    twitterUrl:{
+    twitterUrl: {
         type: String,
         required: false
     },
     verified: {
         type: Boolean,
-        default:false
+        default: false
     },
-    plan:{
+    plan: {
         type: String,
         default: 'Free'
     }
-});
+}, { timestamps: true }); // ✅ إضافة timestamps
 
 module.exports = mongoose.model('User', userSchema);

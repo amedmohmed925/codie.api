@@ -142,7 +142,6 @@ const reastPassword = async (req, res, next) => {
 };
 
 // Refresh token
-
 const refreshToken = async (req, res, next) => {
     const { token } = req.body;
 
@@ -175,6 +174,7 @@ const refreshToken = async (req, res, next) => {
     }
 };
 
+// Refresh token
 const registerDev = async (req, res, next) => {
     const { firstName, lastName, jobTitle } = req.body;
 

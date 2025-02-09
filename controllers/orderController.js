@@ -4,6 +4,8 @@ const Cart= require('../models/cartModel');
 const BookingList= require('../models/bookingListModel');
 const { processPayment } = require('../helpers/paymob');
 const mongoose = require('mongoose');
+const User = require('../models/userModel');
+
 const createOrder = async (req, res) => {
     try {
       const {
@@ -13,24 +15,28 @@ const createOrder = async (req, res) => {
         cartId,
       } = req.body;
       const userId=req.userId
+      if (!user) {
+        return res.status(404).json({ success: false, message: "User not found!" });
+      }
+      const user = await User.findById(userId);
 
         const orderData={
           cartItems:cartItems,
-          totalAmount:totalAmount,
-          addressInfo:"Egypt"
+          totalAmount:totalAmount
         }
-        const TheToken=await processPayment(orderData);
+        const TheToken=await processPayment(orderData,user);
         if(TheToken){
+          let iframURL = `https://accept.paymob.com/api/acceptance/iframes/864195?payment_token=${TheToken}`;
           const newlyCreatedOrder = new Order({
             userId,
             cartId,
             cartItems,
             paymentMethod:"paymob",
             totalAmount,
-            orderDate
+            orderDate,
+            iframURL
           });
           await newlyCreatedOrder.save();
-          let iframURL = `https://accept.paymob.com/api/acceptance/iframes/864195?payment_token=${TheToken}`;
           await Cart.deleteMany({ _id: { $in: cartId } });
           res.status(201).json({
             success: true,
@@ -48,7 +54,7 @@ const createOrder = async (req, res) => {
     }
   };
   
-  const capturePayment = async (req, res) => {
+const capturePayment = async (req, res) => {
     try {
       const { paymentId, payerId, orderId } = req.body;
   
@@ -164,7 +170,7 @@ const getOrdersBySeller = async (req, res) => {
   }
 };
 
-  const getOrderDetails = async (req, res) => {
+const getOrderDetails = async (req, res) => {
     try {
       const { id } = req.params;
       const order = await Order.findById(id);

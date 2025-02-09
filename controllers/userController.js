@@ -220,8 +220,8 @@ const getDevelopers = async (req, res, next) => {
 
         // إرسال البيانات كاستجابة
         res.status(200).json({
-            developers:developersArray,
-            users:usersArray
+            developers: developersArray,
+            users: usersArray
         });
     } catch (error) {
         // تمرير الخطأ إلى الـ Middleware الخاص بالأخطاء
@@ -229,12 +229,10 @@ const getDevelopers = async (req, res, next) => {
     }
 };
 
-
-
 // Function to change user role to seller
 const updateUserRoleToSeller = async (req, res) => {
     try {
-        const userId  = req.userId; // استخدم المعرف الخاص بالمستخدم من الطلب
+        const userId = req.userId; // استخدم المعرف الخاص بالمستخدم من الطلب
         const user = await User.findById(userId);
 
         if (!user) {
@@ -254,7 +252,61 @@ const updateUserRoleToSeller = async (req, res) => {
     }
 };
 
+
+const editAddress = async (req, res) => {
+    try {
+        const {
+            apartment,
+            floor,
+            street,
+            building,
+            postalCode,
+            city,
+            country,
+            state,
+        } = req.body;
+
+        const userId = req.userId; // نفترض أن userId موجود في الـ req (مثلاً من الـ Middleware للمصادقة)
+
+        if (!userId) {
+            return res.status(400).json({ success: false, message: "User ID is required" });
+        }
+
+        // تحديث العنوان
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {
+                $set: {
+                    "address.apartment": apartment || " ",
+                    "address.floor": floor || " ",
+                    "address.street": street,
+                    "address.building": building || " ",
+                    "address.postalCode": postalCode || " ",
+                    "address.city": city,
+                    "address.country": country,
+                    "address.state": state || " ",
+                }
+            },
+            { new: true } // لإرجاع البيانات المحدثة
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Address updated successfully"
+        });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
 module.exports = {
+    editAddress,
     getUser,
     deleteUser,
     editInfoCompany,

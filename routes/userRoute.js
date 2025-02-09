@@ -13,7 +13,8 @@ const {
     editUserPlan,
     getTempleteByDev,
     getDevelopers,
-    updateUserRoleToSeller
+    updateUserRoleToSeller,
+    editAddress
 } = require('../controllers/userController');
 const multer = require('multer');
 const { registerDev } = require('../controllers/authController');
@@ -343,5 +344,7 @@ router.get('/developers', getDevelopers);
  *         description: Server error
  */
 router.post('/create-dev',isAuth, registerDev);
+
+router.put('/edit-address-user',isAuth,editAddress)
 
 module.exports = router;
