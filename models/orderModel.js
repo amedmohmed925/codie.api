@@ -18,11 +18,6 @@ const orderSchema = new mongoose.Schema({
           quantity: Number,
         },
     ],
-    // addressInfo: {
-    //     type: String,
-    //     default:"Egypt",
-    //     required: false
-    // },
     orderStatus: {
         type: String,
         enum: ['Paid','Inprogress','Disputed','completed'],

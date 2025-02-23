@@ -30,9 +30,13 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    price: {
+    commercialPrice: {
         type: Number,  // Updated to Number
-        required: false
+        required: true
+    },
+    regularPrice: {
+        type: Number,  // Updated to Number
+        required: true
     },
     uploadVideoUrl: {  // Corrected typo from uploadVidieUrl
         type: String,
@@ -50,10 +54,16 @@ const productSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    compressedFileUrl: String,
+    livePreviewUrl: String,
+    allowEditing : {
+        type: Boolean,
+        required: true
+    },
     isVerified: {
         type: Boolean,
         required: true
     }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

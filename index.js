@@ -1,11 +1,10 @@
 const express = require('express');
 const connectDB = require('./config/db');
 const swaggerSpec = require('./swagger/swaggerConfig');
-const jwt = require('jsonwebtoken');
 const swaggerUi = require('swagger-ui-express');
 const cors = require('cors');
 
-const { app, server } = require('./Socket/socket');
+const { app } = require('./Socket/socket');
 const allowedOrigins = [process.env.PORT2, process.env.PORT3];
 
 const corsOptions = {
@@ -50,6 +49,7 @@ app.use('/api/dashboard', require('./routes/dashboardRoute'));
 app.use('/api/tag', require('./routes/tagRoute'));
 app.use('/api/cart', require('./routes/cartRoute'));
 app.use('/api/payment', require('./routes/paymentRoute'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 6000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

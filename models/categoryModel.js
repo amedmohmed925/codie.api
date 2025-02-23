@@ -13,6 +13,10 @@ const categorySchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    priceRange: {
+        minPrice: { type: Number, required: true },
+        maxPrice: { type: Number, required: true }
+    },
     note: {
         type: String,
         required: true

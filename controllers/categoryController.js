@@ -29,7 +29,7 @@ exports.getCategoryById = async (req, res) => {
 
 // Create a new category
 exports.createCategory = async (req, res) => {
-    const { title, categoryNumber, note } = req.body;
+    const { title, categoryNumber, note,priceRange } = req.body;
     const userId = req.userId; // Assuming the authenticated user's ID is stored in req.user
 
     try {
@@ -37,7 +37,8 @@ exports.createCategory = async (req, res) => {
             userId,
             title,
             categoryNumber,
-            note
+            note,
+            priceRange
         });
 
         const savedCategory = await newCategory.save();
@@ -50,12 +51,12 @@ exports.createCategory = async (req, res) => {
 // Update a category by ID
 exports.updateCategory = async (req, res) => {
     const { categoryId } = req.params;
-    const { title, categoryNumber, note } = req.body;
+    const { title, categoryNumber, note ,priceRange} = req.body;
 
     try {
         const updatedCategory = await Category.findByIdAndUpdate(
             categoryId,
-            { title, categoryNumber, note },
+            { title, categoryNumber, note ,priceRange},
             { new: true, runValidators: true }
         );
 

@@ -1,4 +1,5 @@
 const Product = require('../models/ProductModel');
+const Order = require('../models/orderModel');
 const User = require('../models/userModel');
 const Developer = require('../models/developerModel')
 const Tags = require('../models/tagsModel')
@@ -199,8 +200,6 @@ const getProducts = async (req, res) => {
 };
 
 
-
-
 // Get all products
 const getProductsName = async (req, res) => {
     try {
@@ -242,14 +241,19 @@ const createProduct = async (req, res) => {
         productCreator, 
         privateURL, 
         privateTemplate, 
-        price, 
-        uploadVideoUrl
+        commercialPrice, 
+        regularPrice, 
+        uploadVideoUrl, 
+        livePreviewUrl, 
+        allowEditing 
     } = req.body;
 
     try {
-        // Handle image upload to Cloudinary if exists
         let uploadImgUrl = '';
-        if (req.file) {
+        let compressedFileUrl = '';
+
+        // ✅ رفع صورة المنتج إلى Cloudinary إذا كانت موجودة
+        if (req.files && req.files.uploadImg) {
             const uploadResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     { folder: 'products' }, 
@@ -258,11 +262,17 @@ const createProduct = async (req, res) => {
                         else resolve(result);
                     }
                 );
-                uploadStream.end(req.file.buffer);
+                uploadStream.end(req.files.uploadImg[0].buffer);
             });
             uploadImgUrl = uploadResult.secure_url;
         }
 
+        // ✅ رفع الملف المضغوط إذا كان موجودًا
+        if (req.files && req.files.compressedFile) {
+            compressedFileUrl = `/uploads/${req.files.compressedFile[0].filename}`; // حفظ مسار الملف المضغوط
+        }
+
+        // ✅ إنشاء المنتج الجديد
         const newProduct = new Product({
             categoryId,
             title,
@@ -271,12 +281,16 @@ const createProduct = async (req, res) => {
             productCreator,
             privateURL,
             privateTemplate,
-            price: Number(price),
+            commercialPrice: Number(commercialPrice),
+            regularPrice: Number(regularPrice),
             uploadVideoUrl,
             uploadImgUrl,
+            compressedFileUrl,
+            livePreviewUrl,
+            allowEditing: allowEditing === 'true', // تحويل `string` إلى `Boolean`
             isVerified: false
         });
-
+        
         const savedProduct = await newProduct.save();
         res.status(201).json(savedProduct);
     } catch (error) {
@@ -286,6 +300,30 @@ const createProduct = async (req, res) => {
         });
     }
 };
+
+const getCountPayProduct =async (req,res)=>{
+    try {
+        const { productId } = req.params; // استلام productId من الـ URL
+
+        if (!productId) {
+            return res.status(400).json({ message: "Product ID is required" });
+        }
+
+        const result = await Order.aggregate([
+            { $match: { orderStatus: "completed" } }, // تصفية الطلبات المكتملة فقط
+            { $unwind: "$cartItems" }, // تفكيك مصفوفة cartItems
+            { $match: { "cartItems.productId": productId } }, // تصفية المنتج المطلوب
+            { $group: { _id: "$cartItems.productId", count: { $sum: 1 } } } // حساب عدد مرات ظهور المنتج
+        ]);
+
+        const count = result.length > 0 ? result[0].count : 0;
+        return res.status(200).json({ productId, salesCount: count });
+
+    } catch (error) {
+        console.error("Error fetching product sales count:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
 
 const updateIsVerified = async (req, res) => {
     try {
@@ -454,5 +492,6 @@ module.exports = {
     getProductsName,
     getProducts,
     updateIsVerified,
-    filterProducts
+    filterProducts,
+    getCountPayProduct
 }

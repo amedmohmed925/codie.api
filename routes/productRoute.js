@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const isAuth = require('../middleware/isAuth');
 const { 
     getProducts,
@@ -12,7 +14,33 @@ const {
     uploadMiddleware,
     filterProducts,
     getProductsByUser,
+    getCountPayProduct,
 } = require('../controllers/productController');
+
+// إعداد مكان حفظ الملفات
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+
+// 🔹 السماح فقط بملفات الصور والملفات المضغوطة
+const fileFilter = (req, file, cb) => {
+    const allowedImageTypes = ['.png', '.jpg', '.jpeg', '.gif'];
+    const allowedCompressedTypes = ['.zip', '.rar'];
+
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedImageTypes.includes(ext) || allowedCompressedTypes.includes(ext)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only image files (PNG, JPG, JPEG, GIF) or compressed files (ZIP, RAR) are allowed!'), false);
+    }
+};
+
+const upload = multer({ storage, fileFilter });
 
 /**
  * @swagger
@@ -167,9 +195,12 @@ router.get('/:productId', getProductById);
 router.post('/', 
     isAuth,
     uploadMiddleware, // Multer middleware for file upload
+    upload.fields([
+        { name: 'uploadImg', maxCount: 1 },         // صورة المنتج
+        { name: 'compressedFile', maxCount: 1 }     // الملف المضغوط
+    ]),
     createProduct
 );
-
 
 /**
  * @swagger
@@ -271,6 +302,8 @@ router.put('/:productId', isAuth, updateProduct);
  *         description: Server error
  */
 router.delete('/:productId', isAuth, deleteProduct);
+
+router.get("product-pay/:productId",isAuth,getCountPayProduct)
 
 // /**
 //  * @swagger
