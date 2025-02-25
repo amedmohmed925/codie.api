@@ -7,18 +7,18 @@ const cors = require('cors');
 const { app } = require('./Socket/socket');
 const allowedOrigins = [process.env.PORT2, process.env.PORT3];
 
-const corsOptions = {
-    origin: (origin, callback) => {
-        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    optionsSuccessStatus: 200,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: ['Content-Type', 'Authorization'],
-};
+// const corsOptions = {
+//     origin: (origin, callback) => {
+//         if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+//             callback(null, true);
+//         } else {
+//             callback(new Error('Not allowed by CORS'));
+//         }
+//     },
+//     optionsSuccessStatus: 200,
+//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+// };
 require('dotenv').config();
 app.use(express.json());
 app.use(cors());

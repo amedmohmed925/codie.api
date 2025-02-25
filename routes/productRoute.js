@@ -193,8 +193,8 @@ router.get('/:productId', getProductById);
  *         description: Server error
  */
 router.post('/', 
-    isAuth,
-    uploadMiddleware, // Multer middleware for file upload
+    // isAuth,
+    // uploadMiddleware, // Multer middleware for file upload
     upload.fields([
         { name: 'uploadImg', maxCount: 1 },         // صورة المنتج
         { name: 'compressedFile', maxCount: 1 }     // الملف المضغوط

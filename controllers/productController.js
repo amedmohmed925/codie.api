@@ -251,20 +251,20 @@ const createProduct = async (req, res) => {
     try {
         let uploadImgUrl = '';
         let compressedFileUrl = '';
-
         // ✅ رفع صورة المنتج إلى Cloudinary إذا كانت موجودة
         if (req.files && req.files.uploadImg) {
-            const uploadResult = await new Promise((resolve, reject) => {
-                const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: 'products' }, 
-                    (error, result) => {
-                        if (error) reject(error);
-                        else resolve(result);
-                    }
-                );
-                uploadStream.end(req.files.uploadImg[0].buffer);
-            });
-            uploadImgUrl = uploadResult.secure_url;
+            // const uploadResult = await new Promise((resolve, reject) => {
+            //     const uploadStream = cloudinary.uploader.upload_stream(
+            //         { folder: 'products' }, 
+            //         (error, result) => {
+            //             if (error) reject(error);
+            //             else resolve(result);
+            //         }
+            //     );
+            //     uploadStream.end(req.files.uploadImg[0].buffer);
+            // });
+            // console.log(uploadResult.secure_url);
+            uploadImgUrl = `/uploads/${req.files.uploadImg[0].filename}`; // حفظ مسار الملف المضغوط
         }
 
         // ✅ رفع الملف المضغوط إذا كان موجودًا
@@ -290,6 +290,7 @@ const createProduct = async (req, res) => {
             allowEditing: allowEditing === 'true', // تحويل `string` إلى `Boolean`
             isVerified: false
         });
+        console.log(newProduct);
         
         const savedProduct = await newProduct.save();
         res.status(201).json(savedProduct);
