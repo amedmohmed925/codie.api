@@ -200,6 +200,41 @@ const getProducts = async (req, res) => {
 };
 
 
+const getUnverifiedProducts = async (req, res) => {
+    try {
+
+        const products = await Product.find({ isVerified: false })
+            .populate('categoryId', 'title') 
+            .populate('tags', 'title'); 
+
+
+            const updatedProducts = await Promise.all(products.map(async (product) => {
+            let creator = null;
+
+            if (mongoose.Types.ObjectId.isValid(product.productCreator)) {
+                creator = await User.findById(product.productCreator).select('name email userName jobTitle');
+                if (!creator) {
+                    creator = await Developer.findById(product.productCreator).select('firstName lastName jobTitle');
+                }
+            }
+
+            return {
+                ...product.toObject(),
+                productCreator: creator || null
+            };
+        }));
+
+        if (updatedProducts.length === 0) {
+            return res.status(404).json({ message: 'No unverified products found' });
+        }
+
+        res.status(200).json(updatedProducts);
+    } catch (error) {
+        console.error("❌ Get Unverified Products Error:", error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 // Get all products
 const getProductsName = async (req, res) => {
     try {
@@ -331,9 +366,11 @@ const updateIsVerified = async (req, res) => {
         const userId = req.userId;
         const { id } = req.params;
         const isVerified = true;
-
+        console.log("User ID:", userId);
         const user = await User.findById(userId);
-        if (!user || user.role !== 'admin') {
+        console.log("User Role:", user?.role); // طباعة دور المستخدم
+
+        if (!user || user.role !== 'Admin') {
             return res.status(403).json({ message: 'Access denied' });
         }
 
@@ -494,5 +531,6 @@ module.exports = {
     getProducts,
     updateIsVerified,
     filterProducts,
-    getCountPayProduct
+    getCountPayProduct,
+    getUnverifiedProducts
 }
