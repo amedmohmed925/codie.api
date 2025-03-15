@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    cartId:[{
+    cartId: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Cart',
     }],
-    userId:{
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
@@ -20,17 +20,21 @@ const orderSchema = new mongoose.Schema({
     ],
     orderStatus: {
         type: String,
-        enum: ['Paid','Inprogress','Disputed','completed'],
+        enum: ['Paid', 'Inprogress', 'Disputed', 'completed'],
         default: 'Inprogress'
     },
     paymentMethod: String,
     totalAmount: Number,
     orderDate: Date,
-    iframURL:{
+    iframURL: {
         type: String,
         required: false
+    },
+    affiliateCode: {
+        type: String,
+        required: false,
+        default: null
     }
 });
 
 module.exports = mongoose.model('Order', orderSchema);
-
