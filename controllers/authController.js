@@ -161,7 +161,7 @@ const refreshToken = async (req, res, next) => {
         // قم بإنشاء توكين جديد يتضمن بيانات المستخدم
         const payload = {userId};
         console.log(payload);
-        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, newToken) => {
+        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '3h' }, (err, newToken) => {
             if (err) {
                 console.error(err.message);
                 return res.status(500).json({ msg: 'Error signing token' });
