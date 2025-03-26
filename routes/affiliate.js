@@ -7,4 +7,4 @@ router.post('/generate-code', auth, affiliateController.generateAffiliateCode);
 router.get('/stats', auth, affiliateController.getAffiliateStats);
 router.get('/admin-stats', auth, affiliateController.getAllAdvertisersAffiliateStats);
 
-module.exports = router;
+module.exports = router;  
