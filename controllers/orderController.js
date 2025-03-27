@@ -75,58 +75,68 @@ const createOrder = async (req, res) => {
 };
 
   
+// controllers/orderController.js
+// controllers/orderController.js
 const capturePayment = async (req, res) => {
-    try {
-      const { paymentId, payerId, orderId } = req.body;
-  
-      let order = await Order.findById(orderId);
-  
-      if (!order) {
+  try {
+    const { paymentId, payerId, orderId } = req.body;
+    let order = await Order.findById(orderId).populate('userId');
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    order.paymentStatus = "paid";
+    order.orderStatus = "confirmed";
+    order.paymentId = paymentId;
+    order.payerId = payerId;
+
+    const commissionRate = 0.6; // 60% نسبة الشركة
+    const taxRate = 0.1; // 10% ضرائب
+
+    for (let item of order.cartItems) {
+      let product = await Product.findById(item.productId).populate('productCreator');
+      if (!product) {
         return res.status(404).json({
           success: false,
-          message: "Order can not be found",
+          message: `Product ${product.title} not found`,
         });
       }
-  
-      order.paymentStatus = "paid";
-      order.orderStatus = "confirmed";
-      order.paymentId = paymentId;
-      order.payerId = payerId;
-  
-      for (let item of order.cartItems) {
-        let product = await Product.findById(item.productId);
-  
-        if (!product) {
-          return res.status(404).json({
-            success: false,
-            message: `Not enough stock for this product ${product.title}`,
-          });
-        }
-  
-        product.totalStock -= item.quantity;
-  
-        await product.save();
-      }
-  
-      const getCartId = order.cartId;
-      await Cart.findByIdAndDelete(getCartId);
-  
-      await order.save();
-  
-      res.status(200).json({
-        success: true,
-        message: "Order confirmed",
-        data: order,
+
+      product.totalStock -= item.quantity;
+      await product.save();
+
+      const seller = await User.findById(product.productCreator._id);
+      const sellerRevenue = item.price * item.quantity; // السعر الكلي
+      const commission = sellerRevenue * commissionRate; // النسبة بتاعتكم (60%)
+      const afterCommission = sellerRevenue - commission; // نصيب المبرمج (40%)
+      const taxes = afterCommission * taxRate; // الضرائب
+      const finalPayout = afterCommission - taxes; // النصيب النهائي
+
+      seller.wallet.balance += finalPayout;
+      seller.wallet.transactions.push({
+        amount: finalPayout,
+        type: 'credit',
+        description: `Sale of ${product.title} (Order: ${orderId}) - Total: ${sellerRevenue} EGP, Your Share: ${afterCommission} EGP after commission (${commission} EGP), Final: ${finalPayout} EGP after taxes (${taxes} EGP)`,
       });
-    } catch (e) {
-      console.log(e);
-      res.status(500).json({
-        success: false,
-        message: "Some error occured!",
-      });
+
+      await seller.save();
     }
-  };
-  
+
+    const getCartId = order.cartId;
+    await Cart.findByIdAndDelete(getCartId);
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Order confirmed",
+      data: order,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ success: false, message: "Some error occurred!" });
+  }
+};
   const getAllOrdersByUser = async (req, res) => {
     try {
       const userId  = req.userId;
