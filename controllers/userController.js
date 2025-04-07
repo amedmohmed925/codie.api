@@ -116,32 +116,45 @@ const editNameAndLocUser = async (req, res, next) => {
 
 const editImgUser = async (req, res, next) => {
     try {
+        console.log('Step 1: Checking file existence');
         if (!req.file) {
             return res.status(400).json({ message: 'No image file provided' });
         }
 
+        console.log('Step 2: Fetching user', req.userId);
         const user = await User.findById(req.userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Create a storage reference for the image
+        console.log('Step 3: Preparing file upload');
         const fileName = `profileImages/${user._id}-${Date.now()}`;
         const fileRef = ref(storage, fileName);
 
-        // Upload image to Firebase Storage
+        console.log('Step 4: Uploading to Firebase');
         const snapshot = await uploadBytes(fileRef, req.file.buffer);
 
-        // Get the image's download URL
+        console.log('Step 5: Getting download URL');
         const imageUrl = await getDownloadURL(snapshot.ref);
 
-        // Update user with the new image URL in MongoDB
-        user.userImg = imageUrl;
-        await user.save();
+        console.log('Step 6: Updating user image in MongoDB');
+        await User.updateOne(
+            { _id: req.userId },
+            { $set: { userImg: imageUrl } }
+        );
 
+        console.log('Step 7: Success');
         res.status(200).json({ message: 'Profile image updated', imageUrl });
     } catch (error) {
-        next(error);
+        console.error('Edit Image Error:', {
+            message: error.message,
+            stack: error.stack,
+            step: 'Unknown'
+        });
+        res.status(500).json({ 
+            message: 'Failed to update profile image', 
+            error: error.message || 'Unknown server error' 
+        });
     }
 };
 // edit user plan
