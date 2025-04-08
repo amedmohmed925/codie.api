@@ -85,29 +85,29 @@ const upload = multer({ storage, fileFilter });
 
 router.get('/products/filter', filterProducts);  // New route for advanced filtering
 
-/**
- * @swagger
- * /api/products/unverified:
- *   get:
- *     summary: Get all unverified products
- *     description: Retrieve a list of all products that are not verified (isVerified: false).
- *     tags: [Product]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: A list of unverified products.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Product'
- *       404:
- *         description: No unverified products found.
- *       500:
- *         description: Server error.
- */
+// /**
+//  * @swagger
+//  * /api/products/unverified:
+//  *   get:
+//  *     summary: Get all unverified products
+//  *     description: Retrieve a list of all products that are not verified (isVerified: false).
+//  *     tags: [Product]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     responses:
+//  *       200:
+//  *         description: A list of unverified products.
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/Product'
+//  *       404:
+//  *         description: No unverified products found.
+//  *       500:
+//  *         description: Server error.
+//  */
 router.get('/products/unverified',  getUnverifiedProducts); 
 /**
  * @swagger
