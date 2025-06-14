@@ -5,6 +5,7 @@ const BookingList= require('../models/bookingListModel');
 const { processPayment } = require('../helpers/paymob');
 const mongoose = require('mongoose');
 const User = require('../models/userModel');
+const eventService = require('../services/eventService');
 
 const createOrder = async (req, res) => {
   try {
@@ -51,6 +52,20 @@ const createOrder = async (req, res) => {
       });
 
       await newlyCreatedOrder.save();
+
+      // Trigger product_sold event for notifications
+      for (const item of cartItems) {
+        const product = await Product.findById(item.productId);
+        if (product) {
+          eventService.triggerProductSold({
+            productId: product._id,
+            sellerId: product.productCreator,
+            title: 'Product Sold',
+            description: `Your product "${product.title}" has been sold!`,
+            link: `/product/${product._id}`
+          });
+        }
+      }
 
       // ✅ Ensure cartId is valid before deleting
       if (cartId && cartId.length > 0) {

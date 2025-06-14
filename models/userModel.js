@@ -46,7 +46,18 @@ const userSchema = new mongoose.Schema({
             date: { type: Date, default: Date.now },
             description: String,
         }],
-    }
+    },
+    fcmToken: { type: String, default: '' },
+    notificationPreferences: {
+        type: Object,
+        default: {
+            PROJECT_ADDED: true,
+            PRODUCT_SOLD: true,
+            AFFILIATE_PURCHASE: true,
+            STATUS_CHANGED: true,
+            MANUAL: true
+        }
+    },
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

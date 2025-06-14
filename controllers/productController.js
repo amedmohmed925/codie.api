@@ -5,6 +5,7 @@ const Developer = require('../models/developerModel')
 const Tags = require('../models/tagsModel')
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
+const eventService = require('../services/eventService');
 // Multer configuration for file upload
 const upload = multer({ 
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
@@ -328,6 +329,14 @@ const createProduct = async (req, res) => {
         console.log(newProduct);
         
         const savedProduct = await newProduct.save();
+        // Trigger project_added event for notifications
+        eventService.triggerProjectAdded({
+            projectId: savedProduct._id,
+            userIds: [], // Optionally, pass specific userIds or leave empty for all
+            title: 'New Project Added',
+            description: `A new project "${savedProduct.title}" has been added!`,
+            link: `/project/${savedProduct._id}`
+        });
         res.status(201).json(savedProduct);
     } catch (error) {
         res.status(500).json({ 
@@ -383,7 +392,15 @@ const updateIsVerified = async (req, res) => {
         if (!updatedProduct) {
             return res.status(404).json({ message: 'Product not found' });
         }
-
+        // Trigger status_changed event for notifications
+        eventService.triggerStatusChanged({
+            projectId: updatedProduct._id,
+            sellerId: updatedProduct.productCreator,
+            status: 'APPROVED',
+            title: 'Project Approved',
+            description: `Your project "${updatedProduct.title}" was approved!`,
+            link: `/project/${updatedProduct._id}`
+        });
         res.status(200).json({
             message: 'isVerified updated successfully',
             product: updatedProduct,
