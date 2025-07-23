@@ -117,7 +117,7 @@ const filterProducts = async (req, res) => {
             .populate('tags', 'title')
             .sort(sortOptions[sortBy] || { createdAt: -1 });
 
-        // **Manually Populate productCreator**
+        // **Manually Populate productCreator and Filter Fields**
         const updatedProducts = await Promise.all(products.map(async (product) => {
             let creator = null;
 
@@ -129,8 +129,19 @@ const filterProducts = async (req, res) => {
             }
 
             return {
-                ...product.toObject(),
-                productCreator: creator || null
+                _id: product._id,
+                categoryId: product.categoryId,
+                title: product.title,
+                uploadImgUrl: product.uploadImgUrl,
+                livePreviewUrl: product.livePreviewUrl,
+                productCreator: creator || null,
+                tags: product.tags,
+                description: product.description,
+                isVerified: product.isVerified,
+                commercialPrice: product.commercialPrice,
+                regularPrice: product.regularPrice,
+                createdAt: product.createdAt,
+                updatedAt: product.updatedAt
             };
         }));
 
@@ -256,12 +267,49 @@ const getProductsName = async (req, res) => {
 // Get a product by ID
 const getProductById = async (req, res) => {
     const { productId } = req.params;
+    const userId = req.userId; // Assuming userId is available in the request
+
     try {
         const product = await Product.findById(productId).populate('categoryId', 'title');
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
-        res.status(200).json(product);
+
+        // Check if the user has purchased the product
+        const hasPurchased = await Order.exists({
+            userId: userId,
+            "cartItems.productId": productId,
+            orderStatus: "completed"
+        });
+
+        // Filter fields based on purchase status
+        const response = {
+            _id: product._id,
+            categoryId: product.categoryId,
+            title: product.title,
+            description: product.description,
+            tags: product.tags,
+            productCreator: product.productCreator,
+            uploadImgUrl: product.uploadImgUrl,
+            livePreviewUrl: product.livePreviewUrl,
+            uploadVideoUrl: product.uploadVideoUrl, // Added back to the response
+            isSave: product.isSave,
+            isLike: product.isLike,
+            isVerified: product.isVerified,
+            commercialPrice: product.commercialPrice,
+            regularPrice: product.regularPrice,
+            allowEditing: product.allowEditing,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt
+        };
+
+        if (hasPurchased) {
+            response.privateURL = product.privateURL;
+            response.privateTemplate = product.privateTemplate;
+            response.compressedFileUrl = product.compressedFileUrl;
+        }
+
+        res.status(200).json(response);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }

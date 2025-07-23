@@ -55,6 +55,7 @@ app.use('/api/payment', require('./routes/paymentRoute'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/affiliate', require('./routes/affiliate'));
 app.use('/api/wallet', require('./routes/walletRoute'));
+app.use('/api/chatbot', require('./routes/chatbotRoute'));
 
 const notificationRoutes = require('./routes/notificationsRoute');
 app.use('/api/notifications', notificationRoutes);
