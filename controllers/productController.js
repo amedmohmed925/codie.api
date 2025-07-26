@@ -472,6 +472,125 @@ const deleteProduct = async (req, res) => {
 };
 
 
+// Debug endpoint to check categories and products
+const getCategoriesWithProductCount = async (req, res) => {
+    try {
+        const categories = await Product.aggregate([
+            {
+                $group: {
+                    _id: "$categoryId",
+                    totalProducts: { $sum: 1 },
+                    verifiedProducts: {
+                        $sum: { $cond: [{ $eq: ["$isVerified", true] }, 1, 0] }
+                    },
+                    products: { $push: { title: "$title", isVerified: "$isVerified", _id: "$_id" } }
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "categoryInfo"
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            message: "Categories with product counts",
+            categories
+        });
+    } catch (error) {
+        console.error("❌ Get Categories Debug Error:", error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// Get products by category
+const getProductsByCategory = async (req, res) => {
+    const { categoryId } = req.params;
+    const { limit = 10, exclude } = req.query; // limit: عدد المنتجات، exclude: استبعاد منتج معين
+
+    try {
+        console.log("🔍 Searching for products in category:", categoryId);
+        
+        let query = { 
+            isVerified: true, 
+            categoryId: categoryId 
+        };
+
+        // استبعاد منتج معين إذا تم تمرير exclude
+        if (exclude) {
+            query._id = { $ne: exclude };
+        }
+
+        console.log("📋 Query:", JSON.stringify(query, null, 2));
+
+        // أولاً، تحقق من وجود منتجات في هذه الفئة (بغض النظر عن التحقق)
+        const totalInCategory = await Product.countDocuments({ categoryId: categoryId });
+        const verifiedInCategory = await Product.countDocuments({ categoryId: categoryId, isVerified: true });
+        
+        console.log(`📊 Total products in category: ${totalInCategory}`);
+        console.log(`✅ Verified products in category: ${verifiedInCategory}`);
+
+        const products = await Product.find(query)
+            .populate('categoryId', 'title')
+            .populate('tags', 'title')
+            .limit(parseInt(limit))
+            .sort({ createdAt: -1 });
+
+        console.log(`🎯 Found ${products.length} products matching criteria`);
+
+        // **Manually Populate productCreator**
+        const updatedProducts = await Promise.all(products.map(async (product) => {
+            let creator = null;
+
+            if (mongoose.Types.ObjectId.isValid(product.productCreator)) {
+                creator = await User.findById(product.productCreator).select('name email userName jobTitle');
+                if (!creator) {
+                    creator = await Developer.findById(product.productCreator).select('firstName lastName jobTitle');
+                }
+            }
+
+            return {
+                _id: product._id,
+                categoryId: product.categoryId,
+                title: product.title,
+                uploadImgUrl: product.uploadImgUrl,
+                livePreviewUrl: product.livePreviewUrl,
+                uploadVideoUrl: product.uploadVideoUrl,
+                productCreator: creator || null,
+                tags: product.tags,
+                description: product.description,
+                isVerified: product.isVerified,
+                commercialPrice: product.commercialPrice,
+                regularPrice: product.regularPrice,
+                createdAt: product.createdAt,
+                updatedAt: product.updatedAt
+            };
+        }));
+
+        if (updatedProducts.length === 0) {
+            return res.status(200).json({ 
+                message: 'No verified products found in this category',
+                totalInCategory,
+                verifiedInCategory,
+                products: []
+            });
+        }
+
+        res.status(200).json({
+            totalInCategory,
+            verifiedInCategory,
+            count: updatedProducts.length,
+            products: updatedProducts
+        });
+    } catch (error) {
+        console.error("❌ Get Products By Category Error:", error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 // const searchProduct = async (req, res) => {
 //     const { searchTerm } = req.query;
 
@@ -549,5 +668,7 @@ module.exports = {
     updateIsVerified,
     filterProducts,
     getCountPayProduct,
-    getUnverifiedProducts
+    getUnverifiedProducts,
+    getProductsByCategory,
+    getCategoriesWithProductCount
 }

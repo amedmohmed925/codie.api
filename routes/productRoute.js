@@ -16,6 +16,8 @@ const {
     getProductsByUser,
     getCountPayProduct,
     getUnverifiedProducts,
+    getProductsByCategory,
+    getCategoriesWithProductCount,
 } = require('../controllers/productController');
 
 // إعداد مكان حفظ الملفات
@@ -85,6 +87,9 @@ const upload = multer({ storage, fileFilter });
 
 router.get('/products/filter', filterProducts);  // New route for advanced filtering
 
+// Debug endpoint to check categories and product distribution
+router.get('/debug/categories', getCategoriesWithProductCount);
+
 /**
  /**
  * @swagger
@@ -129,6 +134,42 @@ router.get('/products/unverified', getUnverifiedProducts);
 router.get('/products', getProducts);
 
 router.get('/saller/products', isAuth,getProductsByUser);
+
+/**
+ * @swagger
+ * /api/product/category/{categoryId}:
+ *   get:
+ *     tags: [Product]
+ *     security: []
+ *     summary: Get products by category
+ *     parameters:
+ *       - in: path
+ *         name: categoryId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
+ *           default: 10
+ *         description: Number of products to return
+ *       - in: query
+ *         name: exclude
+ *         schema:
+ *           type: string
+ *         description: Product ID to exclude from results
+ *     responses:
+ *       200:
+ *         description: Products retrieved successfully
+ *       404:
+ *         description: No products found in this category
+ *       500:
+ *         description: Server error
+ */
+router.get('/category/:categoryId', getProductsByCategory);
+
 
 /**
  * @swagger
