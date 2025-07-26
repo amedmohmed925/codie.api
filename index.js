@@ -13,7 +13,7 @@ const allowedOrigins = [process.env.PORT2, process.env.PORT3];
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const xssClean = require('xss-clean');
-const csrf = require('csurf');
+// const csrf = require('csurf');
 
 // const corsOptions = {
 //     origin: (origin, callback) => {
@@ -50,17 +50,18 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CSRF protection
-const csrfProtection = csrf({ cookie: true });
-app.use(csrfProtection);
+// CSRF protection - DISABLED TEMPORARILY
+// const csrfProtection = csrf({ cookie: true });
+// app.use(csrfProtection);
 
-// Middleware to handle CSRF token errors
-app.use((err, req, res, next) => {
-    if (err.code === 'EBADCSRFTOKEN') {
-        return res.status(403).json({ message: 'Invalid CSRF token' });
-    }
-    next(err);
-});
+// Middleware to handle CSRF token errors - DISABLED
+// app.use((err, req, res, next) => {
+//     if (err.code === 'EBADCSRFTOKEN') {
+//         return res.status(403).json({ message: 'Invalid CSRF token' });
+//     }
+//     next(err);
+// });
+
 
 // Swagger setup
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
