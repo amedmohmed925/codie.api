@@ -14,7 +14,7 @@ const mailSender = async (email, title, body) => {
     });
     // Send emails to users
     let info = await transporter.sendMail({
-      from: process.env.EMAIL,
+      from: process.env.EMAILTEST || 'noreply@codie.com', // استخدام EMAILTEST بدلاً من EMAIL
       to: email,
       subject: title,
       html: body,
